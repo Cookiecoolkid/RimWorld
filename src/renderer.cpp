@@ -1,6 +1,6 @@
-#include "Renderer.h"
-#include "Image.h"
-#include "Config.h"
+#include "renderer.h"
+#include "image.h"
+#include "config.h"
 #include <iostream>
 
 Renderer::Renderer(SDL_Window* window)

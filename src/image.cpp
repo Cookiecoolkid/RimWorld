@@ -1,5 +1,5 @@
-#include "Image.h"
-#include "Config.h"
+#include "image.h"
+#include "config.h"
 #include <iostream>
 
 ImageBase::ImageBase(): m_texture(nullptr) {}

@@ -1,13 +1,12 @@
-#include "Game.h"
-#include "Config.h"
+#include "game.h"
+#include "config.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <iostream>
 
 Game::Game(const std::string& title, int width, int height)
     : m_window(title, width, height), m_renderer(nullptr), m_isRunning(false), m_background(""),
-      m_tree(""), m_cuted_tree("") {
-}
+      m_tree(""), m_cuted_tree(""), m_map(Config::MAP_WIDTH, Config::MAP_HEIGHT) {}
 
 
 Game::~Game() {
@@ -70,10 +69,12 @@ void Game::run() {
         std::cerr << "Game initialization failed" << std::endl;
     }
 
+    SDL_Event* event = new SDL_Event();
+
     while (m_isRunning) {
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
+        
+        while (SDL_PollEvent(event)) {
+            if (event->type == SDL_QUIT) {
                 m_isRunning = false;
             }
         }
@@ -87,4 +88,6 @@ void Game::run() {
 
         m_renderer.present();
     }
+
+    delete event;
 }

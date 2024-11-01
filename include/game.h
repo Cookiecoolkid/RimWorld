@@ -1,9 +1,10 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "Window.h"
-#include "Renderer.h"
-#include "Image.h"
+#include "window.h"
+#include "renderer.h"
+#include "image.h"
+#include "map.h"
 
 class Game {
 public:
@@ -23,6 +24,8 @@ private:
     Image m_background;
     Image m_tree;
     Image m_cuted_tree;
+
+    Map m_map;
 };
 
 #endif

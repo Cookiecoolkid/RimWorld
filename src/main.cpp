@@ -1,7 +1,7 @@
 #include <SDL2/SDL.h>
 #include <iostream>
-#include "Game.h"
-#include "Config.h"
+#include "game.h"
+#include "config.h"
 
 int main(int argc, char* argv[]) {
     DEBUG("Begin main\n");

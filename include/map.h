@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <random>
 
 class Tile {
 public:
@@ -24,6 +25,8 @@ public:
     Tile getTile(int x, int y) const;
 
     void setTile(int x, int y, Tile::Type type);
+
+    void placeRandomTrees(int count);
 
 private:
     int m_width;

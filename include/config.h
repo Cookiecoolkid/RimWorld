@@ -18,6 +18,14 @@ public:
     static const int WINDOW_WIDTH;
     static const int WINDOW_HEIGHT;
 
+    // map
+    static const int MAP_WIDTH;
+    static const int MAP_HEIGHT;
+    static const int MAP_UNIT_SIZE;
+
+    // Game setting
+    static const int INIT_TREE_COUNT;
+
     // Image path
     static const std::string IMAGE_BACKGROUND_PATH;
     static const std::string IMAGE_TREE_PATH;

@@ -1,5 +1,5 @@
-#include "Window.h"
-#include "Config.h"
+#include "window.h"
+#include "config.h"
 #include <iostream>
 
 Window::Window(const std::string& title, int width, int height)
