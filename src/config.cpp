@@ -1,4 +1,5 @@
 #include "config.h"
+#include <string>
 
 const std::string Config::WINDOW_TITLE = "RimWorld";
 const int Config::WINDOW_WIDTH = 1024;
@@ -6,7 +7,7 @@ const int Config::WINDOW_HEIGHT = 1024;
 
 const int Config::INIT_TREE_COUNT = 32;
 
-const std::string Config::IMAGE_BACKGROUND_PATH = "image/background.png";
+const std::string Config::IMAGE_BACKGROUND_PATH = "image/purebackground.png";
 const std::string Config::IMAGE_TREE_PATH = "image/tree.png";
 const std::string Config::IMAGE_CUTED_TREE_PATH = "image/cuted_tree.png";
 

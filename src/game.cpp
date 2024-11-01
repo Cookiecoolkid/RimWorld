@@ -41,6 +41,9 @@ bool Game::init() {
         return false;
     }
 
+    // game settings
+    m_map.placeRandomTrees(Config::INIT_TREE_COUNT);
+
     m_isRunning = true;
     return true;
 }
@@ -83,8 +86,16 @@ void Game::run() {
 
         // update render
         m_renderer.renderCopyImage(m_background, 0, 0, Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT);
-        m_renderer.renderCopyImage(m_tree, 128, 128, Config::IMAGE_TREE_SIZE, Config::IMAGE_TREE_SIZE);
-        m_renderer.renderCopyImage(m_cuted_tree, 512, 512, Config::IMAGE_CUTED_TREE_SIZE, Config::IMAGE_CUTED_TREE_SIZE);
+
+        // render map
+        for (int x = 0; x < Config::MAP_WIDTH; ++x) {
+            for (int y = 0; y < Config::MAP_HEIGHT; ++y) {
+                Tile tile = m_map.getTile(x, y);
+                if (tile.getType() == Tile::TREE) {
+                    m_renderer.renderCopyImage(m_tree, x * Config::MAP_UNIT_SIZE, y * Config::MAP_UNIT_SIZE, Config::MAP_UNIT_SIZE, Config::MAP_UNIT_SIZE);
+                }
+            }
+        }
 
         m_renderer.present();
     }
