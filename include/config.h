@@ -22,6 +22,9 @@ public:
     static const int MAP_WIDTH;
     static const int MAP_HEIGHT;
     static const int MAP_UNIT_SIZE;
+    static const int MAP_RATIO;
+    static const int MAP_RENDER_WIDTH;
+    static const int MAP_RENDER_HEIGHT;
 
     // Game setting
     static const int INIT_TREE_COUNT;

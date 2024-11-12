@@ -5,6 +5,7 @@
 #include "renderer.h"
 #include "image.h"
 #include "map.h"
+#include "eventManager.h"
 
 class Game {
 public:
@@ -26,6 +27,10 @@ private:
     Image m_cuted_tree;
 
     Map m_map;
+    // 地图渲染起始位置(最左上角的坐标)
+    int m_mapStartX;
+    int m_mapStartY;
+    EventManager m_eventManager;
 };
 
 #endif
