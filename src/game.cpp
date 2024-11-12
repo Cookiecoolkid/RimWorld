@@ -31,20 +31,25 @@ void Game::updateMapPosition(int dx, int dy) {
 void Game::run() {
     if (!init()) {
         std::cerr << "Game initialization failed" << std::endl;
+        return;
     }
 
+    // 注册事件回调
+    registerCallbacks();
+
     while (m_isRunning) {
-        // handle events
+        // 处理事件
         m_eventManager.handleEvents();
 
+        // 清屏
         m_renderer.clear();
 
-        // update render
+        // 更新渲染
         m_renderer.renderCopyImage(m_background, 0, 0, Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT);
 
-        // render map
-        for (int x = m_mapStartX; x < Config::MAP_RENDER_WIDTH; ++x) {
-            for (int y = m_mapStartY; y < Config::MAP_RENDER_HEIGHT; ++y) {
+        // 渲染地图
+        for (int y = m_mapStartY; y < m_mapStartY + Config::MAP_RENDER_HEIGHT && y < Config::MAP_HEIGHT; ++y) {
+            for (int x = m_mapStartX; x < m_mapStartX + Config::MAP_RENDER_WIDTH && x < Config::MAP_WIDTH; ++x) {
                 
                 assert(m_mapStartX + Config::MAP_RENDER_WIDTH < Config::MAP_WIDTH);
                 assert(m_mapStartY + Config::MAP_RENDER_HEIGHT < Config::MAP_HEIGHT);
@@ -55,12 +60,15 @@ void Game::run() {
                                                 (x - m_mapStartX) * Config::MAP_UNIT_SIZE, 
                                                 (y - m_mapStartY) * Config::MAP_UNIT_SIZE, 
                                                 Config::MAP_UNIT_SIZE, Config::MAP_UNIT_SIZE);
+                
                 }
             }
         }
 
+        // 显示渲染内容
         m_renderer.present();
 
+        // 控制帧率
         SDL_Delay(16);
     }
 }

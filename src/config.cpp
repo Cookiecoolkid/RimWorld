@@ -8,7 +8,7 @@ const int Config::WINDOW_WIDTH = 2560;
 const int Config::WINDOW_HEIGHT = 1600;
 
 // 随机生成的树木数量
-const int Config::INIT_TREE_COUNT = 10;
+const int Config::INIT_TREE_COUNT = 128;
 
 // 图片路径
 const std::string Config::IMAGE_BACKGROUND_PATH = "image/purebackground.png";

@@ -37,15 +37,4 @@ void Map::placeRandomTrees(int count) {
 
         setTile(x, y, Tile::TREE);
     }
-
-    for (int i = 0; i < m_height; ++i) {
-        for (int j = 0; j < m_width; ++j) {
-            if (getTile(i, j).getType() == Tile::TREE) {
-                std::cout << "T" << " ";
-            } else {
-                std::cout << "-" << " ";
-            }
-        }
-        std::cout << std::endl;
-    }
 }
