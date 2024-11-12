@@ -19,7 +19,6 @@ public:
     using EventCallback = std::function<void(const SDL_Event&)>;
 
     void registerCallback(EventType type, EventCallback callback);
-    void registerCallbacks();
     void handleEvents();
 
 private:

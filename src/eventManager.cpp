@@ -1,18 +1,11 @@
 #include "eventManager.h"
-#include "eventCallback.h"
 #include <functional>
 #include <SDL2/SDL.h>
+#include "game.h"
 
 void EventManager::registerCallback(EventType type, EventCallback callback) {
     callbacks[type] = callback;
 }
-
-void EventManager::registerCallbacks() {
-    registerCallback(EventManager::QUIT, onQuit);
-    registerCallback(EventManager::KEYDOWN, onKeyDown);
-    registerCallback(EventManager::MOUSEBUTTONDOWN, onMouseButtonDown);
-}
-
 
 void EventManager::handleEvents() {
     SDL_Event event;

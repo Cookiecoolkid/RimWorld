@@ -17,66 +17,15 @@ Game::~Game() {
     SDL_Quit();
 }
 
-bool Game::init() {
-    // SDL 初始化
-    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-        std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
-        return false;
-    }
-
-    // IMG 初始化
-    if (IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG) {
-        std::cerr << "IMG_Init Error: " << IMG_GetError() << std::endl;
-        return false;
-    }
-
-    // Window 初始化
-    if (!m_window.init()) {
-        return false;
-    }
-
-    // Renderer 初始化
-    m_renderer = Renderer(m_window.getSDLWindow());
-    if (!m_renderer.init()) {
-        return false;
-    }
-
-    // EventManager 初始化
-    m_eventManager.registerCallbacks();
-
-    // load image 
-    if (!init_load_image()) {
-        return false;
-    }
-
-    // game settings
-    m_map.placeRandomTrees(Config::INIT_TREE_COUNT);
-
-    m_isRunning = true;
-
-    // 设置地图渲染起始位置
-    m_mapStartX = 0;
-    m_mapStartY = 0;
-    return true;
+void Game::registerCallbacks() {
+    m_eventManager.registerCallback(EventManager::QUIT, [this](const SDL_Event& event) { this->onQuit(event); });
+    m_eventManager.registerCallback(EventManager::KEYDOWN, [this](const SDL_Event& event) { this->onKeyDown(event); });
+    m_eventManager.registerCallback(EventManager::MOUSEBUTTONDOWN, [this](const SDL_Event& event) { this->onMouseButtonDown(event); });
 }
 
-bool Game::init_load_image() {
-    m_background = Image(Config::IMAGE_BACKGROUND_PATH);
-    if (!m_background.load(m_renderer.getSDLRenderer())) {
-        return false;
-    }
-
-    m_tree = Image(Config::IMAGE_TREE_PATH);
-    if (!m_tree.load(m_renderer.getSDLRenderer())) {
-        return false;
-    }
-
-    m_cuted_tree = Image(Config::IMAGE_CUTED_TREE_PATH);
-    if (!m_cuted_tree.load(m_renderer.getSDLRenderer())) {
-        return false;
-    }
-
-    return true;
+void Game::updateMapPosition(int dx, int dy) {
+    m_mapStartX = std::max(0, std::min(m_mapStartX + dx, Config::MAP_WIDTH - Config::MAP_RENDER_WIDTH - 1));
+    m_mapStartY = std::max(0, std::min(m_mapStartY + dy, Config::MAP_HEIGHT - Config::MAP_RENDER_HEIGHT - 1));
 }
 
 void Game::run() {
@@ -98,11 +47,14 @@ void Game::run() {
             for (int y = m_mapStartY; y < Config::MAP_RENDER_HEIGHT; ++y) {
                 
                 assert(m_mapStartX + Config::MAP_RENDER_WIDTH < Config::MAP_WIDTH);
-                assert(m_mapStartY + Config::MAP_RENDER_WIDTH < Config::MAP_HEIGHT);
+                assert(m_mapStartY + Config::MAP_RENDER_HEIGHT < Config::MAP_HEIGHT);
 
                 Tile tile = m_map.getTile(x, y);
                 if (tile.getType() == Tile::TREE) {
-                    m_renderer.renderCopyImage(m_tree, x * Config::MAP_UNIT_SIZE, y * Config::MAP_UNIT_SIZE, Config::MAP_UNIT_SIZE, Config::MAP_UNIT_SIZE);
+                    m_renderer.renderCopyImage(m_tree, 
+                                                (x - m_mapStartX) * Config::MAP_UNIT_SIZE, 
+                                                (y - m_mapStartY) * Config::MAP_UNIT_SIZE, 
+                                                Config::MAP_UNIT_SIZE, Config::MAP_UNIT_SIZE);
                 }
             }
         }

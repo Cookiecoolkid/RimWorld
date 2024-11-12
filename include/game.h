@@ -7,6 +7,7 @@
 #include "map.h"
 #include "eventManager.h"
 
+
 class Game {
 public:
     Game(const std::string& title, int width, int height);
@@ -31,6 +32,13 @@ private:
     int m_mapStartX;
     int m_mapStartY;
     EventManager m_eventManager;
+
+    void onQuit(const SDL_Event& event);
+    void onKeyDown(const SDL_Event& event);
+    void onMouseButtonDown(const SDL_Event& event);
+
+    void updateMapPosition(int dx, int dy);
+    void registerCallbacks();
 };
 
 #endif

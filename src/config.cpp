@@ -8,7 +8,7 @@ const int Config::WINDOW_WIDTH = 2560;
 const int Config::WINDOW_HEIGHT = 1600;
 
 // 随机生成的树木数量
-const int Config::INIT_TREE_COUNT = 64;
+const int Config::INIT_TREE_COUNT = 10;
 
 // 图片路径
 const std::string Config::IMAGE_BACKGROUND_PATH = "image/purebackground.png";
@@ -30,3 +30,6 @@ const int Config::MAP_HEIGHT = MAP_RATIO * WINDOW_HEIGHT / MAP_UNIT_SIZE;
 // 地图渲染宽度以及高度
 const int Config::MAP_RENDER_WIDTH = WINDOW_WIDTH / MAP_UNIT_SIZE;
 const int Config::MAP_RENDER_HEIGHT = WINDOW_HEIGHT / MAP_UNIT_SIZE;
+
+// 地图移动速度
+const int Config::MAP_MOVE_SPEED = 1;

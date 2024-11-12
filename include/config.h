@@ -26,6 +26,8 @@ public:
     static const int MAP_RENDER_WIDTH;
     static const int MAP_RENDER_HEIGHT;
 
+    static const int MAP_MOVE_SPEED;
+
     // Game setting
     static const int INIT_TREE_COUNT;
 
