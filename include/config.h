@@ -40,6 +40,9 @@ public:
     static const int IMAGE_BACKGROUND_SIZE;
     static const int IMAGE_TREE_SIZE;
     static const int IMAGE_CUTED_TREE_SIZE;
+
+    // Move Frames
+    static const int MOVE_FRAMES;
 };
 
 #endif

@@ -32,4 +32,7 @@ const int Config::MAP_RENDER_WIDTH = WINDOW_WIDTH / MAP_UNIT_SIZE;
 const int Config::MAP_RENDER_HEIGHT = WINDOW_HEIGHT / MAP_UNIT_SIZE;
 
 // 地图移动速度
-const int Config::MAP_MOVE_SPEED = 1;
+const int Config::MAP_MOVE_SPEED = 4;
+
+// 一次移动所需帧数
+const int Config::MOVE_FRAMES = 32;

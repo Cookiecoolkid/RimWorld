@@ -41,6 +41,7 @@ bool Game::init() {
     // 设置地图渲染起始位置
     m_mapStartX = 0;
     m_mapStartY = 0;
+
     return true;
 }
 

@@ -6,7 +6,7 @@
 #include <cassert>
 
 Game::Game(const std::string& title, int width, int height)
-    : m_window(title, width, height), m_renderer(nullptr), m_isRunning(false), m_background(""),
+    : m_window(title, width, height), m_renderer(nullptr), m_timer(), m_isRunning(false), m_background(""),
       m_tree(""), m_cuted_tree(""), m_map(Config::MAP_WIDTH, Config::MAP_HEIGHT) {}
 
 
@@ -23,12 +23,9 @@ void Game::registerCallbacks() {
     m_eventManager.registerCallback(EventManager::MOUSEBUTTONDOWN, [this](const SDL_Event& event) { this->onMouseButtonDown(event); });
 }
 
-void Game::updateMapPosition(int dx, int dy) {
-    m_mapStartX = std::max(0, std::min(m_mapStartX + dx, Config::MAP_WIDTH - Config::MAP_RENDER_WIDTH - 1));
-    m_mapStartY = std::max(0, std::min(m_mapStartY + dy, Config::MAP_HEIGHT - Config::MAP_RENDER_HEIGHT - 1));
-}
 
 void Game::run() {
+
     if (!init()) {
         std::cerr << "Game initialization failed" << std::endl;
         return;
@@ -38,6 +35,9 @@ void Game::run() {
     registerCallbacks();
 
     while (m_isRunning) {
+        // 定时器计算时间
+        // float deltaTime = m_timer.getDeltaTicks();
+
         // 处理事件
         m_eventManager.handleEvents();
 
@@ -47,23 +47,11 @@ void Game::run() {
         // 更新渲染
         m_renderer.renderCopyImage(m_background, 0, 0, Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT);
 
-        // 渲染地图
-        for (int y = m_mapStartY; y < m_mapStartY + Config::MAP_RENDER_HEIGHT && y < Config::MAP_HEIGHT; ++y) {
-            for (int x = m_mapStartX; x < m_mapStartX + Config::MAP_RENDER_WIDTH && x < Config::MAP_WIDTH; ++x) {
-                
-                assert(m_mapStartX + Config::MAP_RENDER_WIDTH < Config::MAP_WIDTH);
-                assert(m_mapStartY + Config::MAP_RENDER_HEIGHT < Config::MAP_HEIGHT);
+        // 移动地图
+        movingMap();
 
-                Tile tile = m_map.getTile(x, y);
-                if (tile.getType() == Tile::TREE) {
-                    m_renderer.renderCopyImage(m_tree, 
-                                                (x - m_mapStartX) * Config::MAP_UNIT_SIZE, 
-                                                (y - m_mapStartY) * Config::MAP_UNIT_SIZE, 
-                                                Config::MAP_UNIT_SIZE, Config::MAP_UNIT_SIZE);
-                
-                }
-            }
-        }
+        // 渲染地图
+        m_renderer.renderMap(m_map, m_mapStartX, m_mapStartY, m_tree);
 
         // 显示渲染内容
         m_renderer.present();

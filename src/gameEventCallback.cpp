@@ -12,7 +12,7 @@ void Game::onQuit(const SDL_Event& event) {
 }
 
 void Game::onKeyDown(const SDL_Event& event) {
-    int speed = Config::MAP_MOVE_SPEED;
+    int speed = Config::MAP_MOVE_SPEED * Config::MAP_UNIT_SIZE;
     switch (event.key.keysym.sym) {
         case SDLK_q:
             onQuit(event);
