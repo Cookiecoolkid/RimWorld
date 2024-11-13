@@ -22,7 +22,8 @@ public:
     
     SDL_Renderer* getSDLRenderer() const;
 
-    void renderMap(const Map& map, int mapStartX, int mapStartY, const Image& image);
+    void renderMap(const Map& map, int mapStartX, int mapStartY, const Image& image, 
+        const Image& animal_left, const Image& animal_right);
 
 private:
     SDL_Window* m_window;

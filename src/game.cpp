@@ -9,11 +9,10 @@ Game::Game(const std::string& title, int width, int height)
     : m_window(title, width, height), m_renderer(nullptr), m_timer(), m_isRunning(false), m_background(""),
       m_tree(""), m_cuted_tree(""), m_map(Config::MAP_WIDTH, Config::MAP_HEIGHT) {}
 
-
 Game::~Game() {
     DEBUG("Game Destructor\n");
     // Sequence is important
-    IMG_Quit();
+    IMG_Quit(); 
     SDL_Quit();
 }
 
@@ -25,7 +24,6 @@ void Game::registerCallbacks() {
 
 
 void Game::run() {
-
     if (!init()) {
         std::cerr << "Game initialization failed" << std::endl;
         return;
@@ -44,14 +42,14 @@ void Game::run() {
         // 清屏
         m_renderer.clear();
 
+        // 更新游戏状态
+        updateGameState();
+
         // 更新渲染
         m_renderer.renderCopyImage(m_background, 0, 0, Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT);
 
-        // 移动地图
-        movingMap();
-
         // 渲染地图
-        m_renderer.renderMap(m_map, m_mapStartX, m_mapStartY, m_tree);
+        m_renderer.renderMap(m_map, m_mapStartX, m_mapStartY, m_tree, m_animal_left, m_animal_right);
 
         // 显示渲染内容
         m_renderer.present();

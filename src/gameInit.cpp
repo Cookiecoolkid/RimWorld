@@ -2,11 +2,14 @@
 #include "config.h"
 
 bool Game::init() {
+    DEBUG("Game Initialization\n");
     // SDL 初始化
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
         return false;
     }
+
+    DEBUG("SDL_Init Success\n");
 
     // IMG 初始化
     if (IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG) {
@@ -25,13 +28,21 @@ bool Game::init() {
         return false;
     }
 
+    DEBUG("Renderer Init Success\n");
+
     // Game 的 callback 函数初始化
     registerCallbacks();
 
     // load image 
+    if (!init_image_path()) {
+        return false;
+    }
+
     if (!init_load_image()) {
         return false;
     }
+
+    DEBUG("Load Image Success\n");
 
     // game settings
     m_map.placeRandomTrees(Config::INIT_TREE_COUNT);
@@ -61,5 +72,22 @@ bool Game::init_load_image() {
         return false;
     }
 
+    m_animal_left = Image(m_animalPath[0]);
+    if (!m_animal_left.load(m_renderer.getSDLRenderer())) {
+        return false;
+    }
+
+    m_animal_right = Image(m_animalPath[1]);
+    if (!m_animal_right.load(m_renderer.getSDLRenderer())) {
+        return false;
+    }
+
+    return true;
+}
+
+bool Game::init_image_path() {
+    for (int i = 0; i < 2; i++) {
+        m_animalPath[i] = "image/animal_" + std::to_string(i) + ".png";
+    }
     return true;
 }

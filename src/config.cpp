@@ -25,14 +25,22 @@ const int Config::MAP_UNIT_SIZE = 64;
 // 地图放大比例
 const int Config::MAP_RATIO = 2;
 // 地图实际宽度以及高度
-const int Config::MAP_WIDTH = MAP_RATIO * WINDOW_WIDTH / MAP_UNIT_SIZE;
-const int Config::MAP_HEIGHT = MAP_RATIO * WINDOW_HEIGHT / MAP_UNIT_SIZE;
+const int Config::MAP_WIDTH = Config::MAP_RATIO * Config::WINDOW_WIDTH / Config::MAP_UNIT_SIZE;
+const int Config::MAP_HEIGHT = Config::MAP_RATIO * Config::WINDOW_HEIGHT / Config::MAP_UNIT_SIZE;
 // 地图渲染宽度以及高度
-const int Config::MAP_RENDER_WIDTH = WINDOW_WIDTH / MAP_UNIT_SIZE;
-const int Config::MAP_RENDER_HEIGHT = WINDOW_HEIGHT / MAP_UNIT_SIZE;
+const int Config::MAP_RENDER_WIDTH = Config::WINDOW_WIDTH / Config::MAP_UNIT_SIZE;
+const int Config::MAP_RENDER_HEIGHT = Config::WINDOW_HEIGHT / Config::MAP_UNIT_SIZE;
 
 // 地图移动速度
 const int Config::MAP_MOVE_SPEED = 4;
 
 // 一次移动所需帧数
 const int Config::MOVE_FRAMES = 32;
+
+// Animal
+// 移动一次帧数
+const int Config::ANIMAL_MOVE_FRAMES = 30;
+// 不同移动的图片总数
+const int Config::ANIMAL_IMAGE_NUMBERS = 2;
+// 动物总数
+const int Config::ANIMAL_NUMBERS = 10;

@@ -21,6 +21,7 @@ private:
 
 class Image : public ImageBase {
 public:
+    Image() : m_filePath("") {} // 默认构造函数
     Image(const std::string& filePath);
     std::string getFilePath() const override;
 

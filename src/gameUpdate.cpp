@@ -43,3 +43,13 @@ void Game::movingMap() {
         }
     }
 }
+
+void Game::updateGameState() {
+    // 移动地图
+    movingMap();
+    // 更新动物状态
+    for (int i = 0; i < Config::ANIMAL_NUMBERS; ++i) {
+        m_animal_entity[i].action(m_map);
+        // DEBUG("Animal %d: x = %d, y = %d\n", i, m_animal_entity[i].getX(), m_animal_entity[i].getY());
+    }
+}

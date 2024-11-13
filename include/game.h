@@ -7,6 +7,9 @@
 #include "map.h"
 #include "timeController.h"
 #include "eventManager.h"
+#include "entity.h"
+#include "config.h"
+#include <string>
 
 
 class Game {
@@ -17,6 +20,8 @@ public:
     bool init();
     void run();
     bool init_load_image();
+    bool init_image_path();
+    void updateGameState();
 
 private:
     Window m_window;
@@ -28,6 +33,12 @@ private:
     Image m_background;
     Image m_tree;
     Image m_cuted_tree;
+    std::string m_animalPath[2];
+    Image m_animal_left;
+    Image m_animal_right;
+
+    // Animal
+    Animal m_animal_entity[128];
 
     Map m_map;
     // 地图渲染起始位置(最左上角的坐标)

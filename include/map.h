@@ -7,7 +7,8 @@
 
 class Tile {
 public:
-    enum Type { EMPTY, TREE, WALL, DOOR };
+    enum Type { EMPTY, TREE, WALL, DOOR, ANIMAL_LEFT, ANIMAL_RIGHT, PLAYER_UP,
+                PLAYER_DOWN, PLAYER_LEFT, PLAYER_RIGHT, CUTED_TREE };  
 
     Tile(Type type = EMPTY);
 

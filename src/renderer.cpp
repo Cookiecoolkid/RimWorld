@@ -42,16 +42,26 @@ SDL_Renderer* Renderer::getSDLRenderer() const {
     return m_renderer;
 }
 
-void Renderer::renderMap(const Map& map, int mapStartX, int mapStartY, const Image& tree) {
+void Renderer::renderMap(const Map& map, int mapStartX, int mapStartY, const Image& tree, 
+                    const Image& animal_left, const Image& animal_right) {
     for (int y = mapStartY; y < mapStartY + Config::MAP_RENDER_HEIGHT && y < Config::MAP_HEIGHT; ++y) {
         for (int x = mapStartX; x < mapStartX + Config::MAP_RENDER_WIDTH && x < Config::MAP_WIDTH; ++x) {
             Tile tile = map.getTile(x, y);
-            if (tile.getType() == Tile::TREE) {
-                renderCopyImage(tree, 
-                                (x - mapStartX) * Config::MAP_UNIT_SIZE + render_offsetX, 
-                                (y - mapStartY) * Config::MAP_UNIT_SIZE + render_offsetY, 
-                                Config::MAP_UNIT_SIZE, 
-                                Config::MAP_UNIT_SIZE);
+            int unitSize = Config::MAP_UNIT_SIZE;
+            int renderX = (x - mapStartX) * Config::MAP_UNIT_SIZE + render_offsetX;
+            int renderY = (y - mapStartY) * Config::MAP_UNIT_SIZE + render_offsetY;
+            switch (tile.getType()) {
+                case Tile::TREE:
+                    renderCopyImage(tree, renderX, renderY, unitSize, unitSize);
+                    break;
+                case Tile::ANIMAL_LEFT:
+                    renderCopyImage(animal_left, renderX, renderY, unitSize, unitSize);
+                    break;
+                case Tile::ANIMAL_RIGHT:
+                    renderCopyImage(animal_right, renderX, renderY, unitSize, unitSize);
+                    break;
+                default:
+                    break;
             }
         }
     }
