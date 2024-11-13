@@ -16,9 +16,9 @@ public:
     void present();
     void renderCopyImage(const Image& image, int x, int y, int w, int h);
 
-    void setOffset(int offsetX, int offsetY);
-    int getOffsetX() const;
-    int getOffsetY() const;
+    void setMapMovingOffset(int offsetX, int offsetY);
+    int getMapMovingOffsetX() const;
+    int getMapMovingOffsetY() const;
     
     SDL_Renderer* getSDLRenderer() const;
 
@@ -29,8 +29,8 @@ private:
     SDL_Window* m_window;
     SDL_Renderer* m_renderer;
 
-    int render_offsetX = 0;
-    int render_offsetY = 0;
+    int mapMoving_offsetX = 0;
+    int mapMoving_offsetY = 0;
 };
 
 #endif // RENDERER_H

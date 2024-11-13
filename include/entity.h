@@ -3,7 +3,7 @@
 
 #include <SDL2/SDL.h>
 #include <string>
-#include "map.h"
+#include <utility>  
 
 class Entity {
 public:
@@ -15,9 +15,6 @@ public:
     };
 
     virtual ~Entity() = default;
-    virtual void action(Map& map) = 0;
-
-protected:
     Direction direction;
 };
 
@@ -25,21 +22,19 @@ class Animal : public Entity {
 public:
     Animal();
     ~Animal() = default;
-    void action(Map& map) override;
-    int getX() const;
-    int getY() const;
-
-private:
-    bool canMoveTo(int x, int y, const Map& map);
-    void updateTile(Map& map, int new_x, int new_y);
-    int x, y; // 当前动物的位置
+    std::pair<int, int> action();
+    
+    int old_x = 0;
+    int old_y = 0;
+    int x = 0;
+    int y = 0;
 };
 
 class Player : public Entity {
 public:
     Player();
     ~Player() = default;
-    void action(Map& map) override;
+    void action();
 };
 
 #endif // ENTITY_H

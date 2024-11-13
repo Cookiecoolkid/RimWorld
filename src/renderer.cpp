@@ -48,8 +48,8 @@ void Renderer::renderMap(const Map& map, int mapStartX, int mapStartY, const Ima
         for (int x = mapStartX; x < mapStartX + Config::MAP_RENDER_WIDTH && x < Config::MAP_WIDTH; ++x) {
             Tile tile = map.getTile(x, y);
             int unitSize = Config::MAP_UNIT_SIZE;
-            int renderX = (x - mapStartX) * Config::MAP_UNIT_SIZE + render_offsetX;
-            int renderY = (y - mapStartY) * Config::MAP_UNIT_SIZE + render_offsetY;
+            int renderX = (x - mapStartX) * unitSize + mapMoving_offsetX;
+            int renderY = (y - mapStartY) * unitSize + mapMoving_offsetY;
             switch (tile.getType()) {
                 case Tile::TREE:
                     renderCopyImage(tree, renderX, renderY, unitSize, unitSize);
@@ -67,15 +67,15 @@ void Renderer::renderMap(const Map& map, int mapStartX, int mapStartY, const Ima
     }
 }
 
-void Renderer::setOffset(int offsetX, int offsetY) {
-    render_offsetX = offsetX;
-    render_offsetY = offsetY;
+void Renderer::setMapMovingOffset(int offsetX, int offsetY) {
+    mapMoving_offsetX = offsetX;
+    mapMoving_offsetY = offsetY;
 }
 
-int Renderer::getOffsetX() const {
-    return render_offsetX;
+int Renderer::getMapMovingOffsetX() const {
+    return mapMoving_offsetX;
 }
 
-int Renderer::getOffsetY() const {
-    return render_offsetY;
+int Renderer::getMapMovingOffsetY() const {
+    return mapMoving_offsetY;
 }   

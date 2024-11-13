@@ -4,6 +4,8 @@
 #include <iostream>
 #include <vector>
 #include <random>
+#include "entity.h"
+
 
 class Tile {
 public:
@@ -29,9 +31,15 @@ public:
 
     void placeRandomTrees(int count);
 
+    // Animal
+    Animal m_animal_entity[128];
+    bool canMoveTo(int x, int y);
+    void updateAnimalTile(int index, int new_x, int new_y);
+
 private:
     int m_width;
     int m_height;
+
     std::vector<std::vector<Tile>> m_tiles;
 };
 

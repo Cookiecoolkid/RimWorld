@@ -38,3 +38,32 @@ void Map::placeRandomTrees(int count) {
         setTile(x, y, Tile::TREE);
     }
 }
+
+bool Map::canMoveTo(int x, int y) {
+    if (x < 0 || x >= Config::MAP_WIDTH || y < 0 || y >= Config::MAP_HEIGHT) {
+        return false;
+    }
+    return getTile(x, y).getType() == Tile::EMPTY;
+}
+
+void Map::updateAnimalTile(int index, int new_x, int new_y) {
+    Tile::Type new_type = getTile(m_animal_entity[index].x, m_animal_entity[index].y).getType();
+    switch (m_animal_entity[index].direction) {
+        case Entity::LEFT:
+            new_type = Tile::ANIMAL_LEFT;
+            break;
+        case Entity::RIGHT:
+            new_type = Tile::ANIMAL_RIGHT;
+            break;
+        default: // remain the same
+            break;
+    }
+    m_animal_entity[index].old_x = m_animal_entity[index].x;
+    m_animal_entity[index].old_y = m_animal_entity[index].y;
+
+    m_animal_entity[index].x = new_x;
+    m_animal_entity[index].y = new_y;
+
+    setTile(m_animal_entity[index].old_x, m_animal_entity[index].old_y, Tile::EMPTY);
+    setTile(m_animal_entity[index].x, m_animal_entity[index].y, new_type);
+}

@@ -1,8 +1,9 @@
 #include "game.h"
 #include "config.h"
+#include <utility>
 
 void Game::updateMapPosition(int dx, int dy) {
-    if (m_isMoving) {
+    if (m_isMapMoving) {
         return;
     }
 
@@ -23,22 +24,22 @@ void Game::updateMapPosition(int dx, int dy) {
     m_targetOffsetX = -dx;
     m_targetOffsetY = -dy;
     m_currentFrame = 0;
-    m_isMoving = true;
+    m_isMapMoving = true;
 }
 
 void Game::movingMap() {
-    if (m_isMoving) {
+    if (m_isMapMoving) {
         m_currentFrame++;
         if (m_currentFrame >= Config::MOVE_FRAMES) {
-            m_isMoving = false;
+            m_isMapMoving = false;
             // targetOffsetX 以及 targetOffsetY 是负数
             m_mapStartX = std::max(0, std::min(m_mapStartX - m_targetOffsetX / Config::MAP_UNIT_SIZE,
                                                     Config::MAP_WIDTH - Config::MAP_RENDER_WIDTH));
             m_mapStartY = std::max(0, std::min(m_mapStartY - m_targetOffsetY / Config::MAP_UNIT_SIZE,
                                                     Config::MAP_HEIGHT - Config::MAP_RENDER_HEIGHT));
-            m_renderer.setOffset(0, 0);
+            m_renderer.setMapMovingOffset(0, 0);
         } else {
-            m_renderer.setOffset((m_targetOffsetX / Config::MOVE_FRAMES) * m_currentFrame, 
+            m_renderer.setMapMovingOffset((m_targetOffsetX / Config::MOVE_FRAMES) * m_currentFrame, 
                                     (m_targetOffsetY / Config::MOVE_FRAMES) * m_currentFrame);
         }
     }
@@ -49,7 +50,14 @@ void Game::updateGameState() {
     movingMap();
     // 更新动物状态
     for (int i = 0; i < Config::ANIMAL_NUMBERS; ++i) {
-        m_animal_entity[i].action(m_map);
-        // DEBUG("Animal %d: x = %d, y = %d\n", i, m_animal_entity[i].getX(), m_animal_entity[i].getY());
+        std::pair<int, int> move = m_map.m_animal_entity[i].action();
+        int new_x = move.first;
+        int new_y = move.second;
+
+        if (new_x == -1 && new_y == -1) continue;
+
+        if (m_map.canMoveTo(new_x, new_y)) {
+            m_map.updateAnimalTile(i, new_x, new_y);
+        }
     }
 }

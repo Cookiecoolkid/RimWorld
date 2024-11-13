@@ -44,8 +44,19 @@ bool Game::init() {
 
     DEBUG("Load Image Success\n");
 
-    // game settings
+    // map type 初始化
+    for (int y = 0; y < Config::MAP_HEIGHT; ++y) {
+        for (int x = 0; x < Config::MAP_WIDTH; ++x) {
+            m_map.setTile(x, y, Tile::EMPTY);
+        }
+    }
+
     m_map.placeRandomTrees(Config::INIT_TREE_COUNT);
+
+    // Animal 初始化
+    for (int i = 0; i < Config::ANIMAL_NUMBERS; ++i) {
+        m_map.setTile(m_map.m_animal_entity[i].x, m_map.m_animal_entity[i].y, Tile::ANIMAL_LEFT);
+    }
 
     m_isRunning = true;
 
