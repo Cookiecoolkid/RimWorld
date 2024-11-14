@@ -46,24 +46,31 @@ bool Map::canMoveTo(int x, int y) {
     return getTile(x, y).getType() == Tile::EMPTY;
 }
 
-void Map::updateAnimalTile(int index, int new_x, int new_y) {
-    Tile::Type new_type = getTile(m_animal_entity[index].x, m_animal_entity[index].y).getType();
-    switch (m_animal_entity[index].direction) {
-        case Entity::LEFT:
-            new_type = Tile::ANIMAL_LEFT;
-            break;
-        case Entity::RIGHT:
-            new_type = Tile::ANIMAL_RIGHT;
-            break;
-        default: // remain the same
-            break;
+// 这里需要注意 Tile 是和 Animal 的 x, y 属性对应，因此只有更新 x,y 的时候才可以更新 Tile 以保持同步
+void Map::tryUpdateAnimalTile(int index) {
+    if (m_animal_entity[index].isMoving) {
+        m_animal_entity[index].moveProgress++;
+        if (m_animal_entity[index].moveProgress >= Config::ANIMAL_MOVE_FRAMES) {
+            // 更新 x,y 的同时更新 Tile
+            // 但由于 updateAnimalTile 的实现是根据 x,y 还没有更新的值来更新 Tile 的，因此要先调用 updateAnimalTile
+            updateAnimalTile(index);
+            m_animal_entity[index].updatePosition();
+        }
     }
-    m_animal_entity[index].old_x = m_animal_entity[index].x;
-    m_animal_entity[index].old_y = m_animal_entity[index].y;
+}
 
-    m_animal_entity[index].x = new_x;
-    m_animal_entity[index].y = new_y;
+void Map::updateAnimalTile(int index) {
+    setTile(m_animal_entity[index].x, m_animal_entity[index].y, Tile::EMPTY);
+    setTile(m_animal_entity[index].targetX, m_animal_entity[index].targetY, Tile::ANIMAL);
+}
 
-    setTile(m_animal_entity[index].old_x, m_animal_entity[index].old_y, Tile::EMPTY);
-    setTile(m_animal_entity[index].x, m_animal_entity[index].y, new_type);
+
+const Animal& Map::getAnimalAt(int x, int y) const {
+    // 这里的 x, y 与 tile 的 x, y 对应
+    for (const auto& animal : m_animal_entity) {
+        if (animal.x == x && animal.y == y) {
+            return animal;
+        }
+    }
+    throw std::runtime_error("Animal not found at the given position");
 }

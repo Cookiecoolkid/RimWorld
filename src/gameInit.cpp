@@ -55,7 +55,7 @@ bool Game::init() {
 
     // Animal 初始化
     for (int i = 0; i < Config::ANIMAL_NUMBERS; ++i) {
-        m_map.setTile(m_map.m_animal_entity[i].x, m_map.m_animal_entity[i].y, Tile::ANIMAL_LEFT);
+        m_map.setTile(m_map.m_animal_entity[i].x, m_map.m_animal_entity[i].y, Tile::ANIMAL);
     }
 
     m_isRunning = true;

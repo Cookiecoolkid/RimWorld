@@ -39,7 +39,7 @@ const int Config::MOVE_FRAMES = 32;
 
 // Animal
 // 移动一次帧数
-const int Config::ANIMAL_MOVE_FRAMES = 30;
+const int Config::ANIMAL_MOVE_FRAMES = 32;
 // 不同移动的图片总数
 const int Config::ANIMAL_IMAGE_NUMBERS = 2;
 // 动物总数

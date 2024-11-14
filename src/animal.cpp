@@ -5,17 +5,20 @@
 
 Animal::Animal() {
     direction = LEFT; // 初始方向
+    img_direction = LEFT; // 图片方向 仅左右
     x = rand() % Config::MAP_WIDTH;
     y = rand() % Config::MAP_HEIGHT;
+
+    targetX = x;
+    targetY = y;
+    moveProgress = 0;
+    isMoving = false;
 }
 
 std::pair<int, int> Animal::action() {
-    static int frame_count = 0;
-    if (frame_count < Config::ANIMAL_MOVE_FRAMES) {
-        frame_count++;
+    if (isMoving) {
         return std::make_pair(-1, -1);
     }
-    frame_count = 0;
 
     // 随机选择一个方向
     Direction new_direction = static_cast<Direction>(std::rand() % 4);
@@ -33,10 +36,25 @@ std::pair<int, int> Animal::action() {
             break;
         case LEFT:
             new_x--;
+            img_direction = LEFT;
             break;
         case RIGHT:
             new_x++;
+            img_direction = RIGHT;
             break;
     }
     return std::make_pair(new_x, new_y);
+}
+
+void Animal::startMove(int new_x, int new_y) {
+    targetX = new_x;
+    targetY = new_y;
+    moveProgress = 0;
+    isMoving = true;
+}
+
+void Animal::updatePosition() {
+    x = targetX;
+    y = targetY;
+    isMoving = false;
 }

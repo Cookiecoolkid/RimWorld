@@ -50,14 +50,20 @@ void Game::updateGameState() {
     movingMap();
     // 更新动物状态
     for (int i = 0; i < Config::ANIMAL_NUMBERS; ++i) {
-        std::pair<int, int> move = m_map.m_animal_entity[i].action();
-        int new_x = move.first;
-        int new_y = move.second;
+        Animal& animal = m_map.m_animal_entity[i];
+        if (!animal.isMoving) {
+            // 随机选择一个方向 但可能不移动
+            std::pair<int, int> move = animal.action();
+            int new_x = move.first;
+            int new_y = move.second;
 
-        if (new_x == -1 && new_y == -1) continue;
+            if (new_x == -1 && new_y == -1) continue;
 
-        if (m_map.canMoveTo(new_x, new_y)) {
-            m_map.updateAnimalTile(i, new_x, new_y);
+            if (m_map.canMoveTo(new_x, new_y)) {
+                animal.startMove(new_x, new_y);
+            }
         }
+        // 更新动物的 x,y 和 Tile 要保持同步
+        m_map.tryUpdateAnimalTile(i);
     }
 }
