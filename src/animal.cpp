@@ -3,17 +3,8 @@
 #include <cstdlib>
 #include <ctime>
 
-Animal::Animal() {
-    direction = LEFT; // 初始方向
-    img_direction = LEFT; // 图片方向 仅左右
-    x = rand() % Config::MAP_WIDTH;
-    y = rand() % Config::MAP_HEIGHT;
-
-    targetX = x;
-    targetY = y;
-    moveProgress = 0;
-    isMoving = false;
-}
+// Map will init animal
+Animal::Animal() {}
 
 std::pair<int, int> Animal::action() {
     if (isMoving) {

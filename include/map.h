@@ -9,8 +9,7 @@
 
 class Tile {
 public:
-    enum Type { EMPTY, TREE, WALL, DOOR, ANIMAL, PLAYER_UP,
-                PLAYER_DOWN, PLAYER_LEFT, PLAYER_RIGHT, CUTED_TREE };  
+    enum Type { EMPTY, TREE, WALL, DOOR, ANIMAL, PLAYER, CUTED_TREE };  
 
     Tile(Type type = EMPTY);
 
@@ -32,12 +31,18 @@ public:
     void placeRandomTrees(int count);
 
     // Animal
-    Animal m_animal_entity[128];
+    Animal m_animal_entity[32];
+
+    Player m_player_entity[10];
+
     bool canMoveTo(int x, int y);
     void tryUpdateAnimalTile(int index);
     void updateAnimalTile(int index);
+    bool isPositionOccupied(int x, int y) const;
 
     const Animal& getAnimalAt(int x, int y) const;
+
+    void printMapTileType() const;
 
 private:
     int m_width;

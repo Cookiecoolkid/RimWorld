@@ -13,13 +13,47 @@ void Tile::setType(Type type) {
     m_type = type;
 }
 
-Map::Map(int width, int height)
-    : m_width(width), m_height(height) {
+Map::Map(int width, int height) : m_width(width), m_height(height) {
+    srand(time(nullptr));
+    
     m_tiles.resize(m_width);
     for (int x = 0; x < m_width; ++x) {
         m_tiles[x].resize(m_height);
     }
-    srand(time(nullptr));
+
+    // 初始化动物的位置
+    for (int i = 0; i < Config::ANIMAL_NUMBERS; ++i) {
+        int x, y;
+        do {
+            x = rand() % m_width;
+            y = rand() % m_height;
+        } while (isPositionOccupied(x, y));
+        m_animal_entity[i].x = x;
+        m_animal_entity[i].y = y;
+        m_animal_entity[i].targetX = x;
+        m_animal_entity[i].targetY = y;
+        m_animal_entity[i].moveProgress = 0;
+        m_animal_entity[i].isMoving = false;
+        m_animal_entity[i].direction = Entity::LEFT;
+        m_animal_entity[i].img_direction = Entity::LEFT;
+
+        setTile(m_animal_entity[i].x, m_animal_entity[i].y, Tile::ANIMAL);
+    }
+
+    // 初始化玩家的位置，确保不与任何动物重叠
+    for (int i = 0; i < Config::PLAYER_NUMBERS; ++i) {
+        int x, y;
+        do {
+            x = rand() % m_width;
+            y = rand() % m_height;
+        } while (isPositionOccupied(x, y));
+        m_player_entity[i].x = x;
+        m_player_entity[i].y = y;
+        m_player_entity[i].direction = Entity::DOWN;
+
+        setTile(m_player_entity[i].x, m_player_entity[i].y, Tile::PLAYER);
+        DEBUG("Player at (%d, %d)\n", x, y);
+    }
 }
 
 Tile Map::getTile(int x, int y) const {
@@ -73,4 +107,33 @@ const Animal& Map::getAnimalAt(int x, int y) const {
         }
     }
     throw std::runtime_error("Animal not found at the given position");
+}
+
+bool Map::isPositionOccupied(int x, int y) const {
+    if (getTile(x, y).getType() != Tile::EMPTY) {
+        return true;
+    }
+    return false;
+}
+
+
+void Map::printMapTileType() const {
+    for (int y = 0; y < m_height; ++y) {
+        for (int x = 0; x < m_width; ++x) {
+            Tile::Type type = getTile(x, y).getType();
+            if (type == Tile::EMPTY) {
+                std::cout << " ";
+            } else if (type == Tile::TREE) {
+                std::cout << " ";
+            } else if (type == Tile::ANIMAL) {
+                std::cout << "A";
+            } else if (type == Tile::PLAYER) {
+                std::cout << "P";
+            }
+            
+        }
+        std::cout << std::endl;
+    }
+
+    std::cout << "----------------------------------------------------------------------------" << std::endl;
 }

@@ -5,6 +5,7 @@
 #include <SDL2/SDL_image.h>
 #include "map.h"
 #include "image.h"
+#include <array>
 
 class Renderer {
 public:
@@ -23,7 +24,9 @@ public:
     SDL_Renderer* getSDLRenderer() const;
 
     void renderMap(const Map& map, int mapStartX, int mapStartY, const Image& image, 
-        const Image& animal_left, const Image& animal_right);
+        const Image& animal_left, const Image& animal_right, std::array<Image, 4>& player_down,
+        std::array<Image, 4>& player_left, std::array<Image, 4>& player_right, 
+        std::array<Image, 4>& player_up);
 
 private:
     SDL_Window* m_window;

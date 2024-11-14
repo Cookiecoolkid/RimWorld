@@ -44,3 +44,8 @@ const int Config::ANIMAL_MOVE_FRAMES = 32;
 const int Config::ANIMAL_IMAGE_NUMBERS = 2;
 // 动物总数
 const int Config::ANIMAL_NUMBERS = 10;
+
+
+// Player
+const int Config::PLAYER_NUMBERS = 2;
+const int Config::PLAYER_IMAGE_NUMBERS = 16;

@@ -45,18 +45,7 @@ bool Game::init() {
     DEBUG("Load Image Success\n");
 
     // map type 初始化
-    for (int y = 0; y < Config::MAP_HEIGHT; ++y) {
-        for (int x = 0; x < Config::MAP_WIDTH; ++x) {
-            m_map.setTile(x, y, Tile::EMPTY);
-        }
-    }
-
     m_map.placeRandomTrees(Config::INIT_TREE_COUNT);
-
-    // Animal 初始化
-    for (int i = 0; i < Config::ANIMAL_NUMBERS; ++i) {
-        m_map.setTile(m_map.m_animal_entity[i].x, m_map.m_animal_entity[i].y, Tile::ANIMAL);
-    }
 
     m_isRunning = true;
 
@@ -93,6 +82,34 @@ bool Game::init_load_image() {
         return false;
     }
 
+    for (int i = 0; i < 4; i++) {
+        m_player_down[i] = Image(m_playerPath[i]);
+        if (!m_player_down[i].load(m_renderer.getSDLRenderer())) {
+            return false;
+        }
+    }
+
+    for (int i = 4; i < 8; i++) {
+        m_player_left[i % 4] = Image(m_playerPath[i]);
+        if (!m_player_left[i % 4].load(m_renderer.getSDLRenderer())) {
+            return false;
+        }
+    }
+
+    for (int i = 8; i < 12; i++) {
+        m_player_right[i % 4] = Image(m_playerPath[i]);
+        if (!m_player_right[i % 4].load(m_renderer.getSDLRenderer())) {
+            return false;
+        }
+    }
+
+    for (int i = 12; i < 16; i++) {
+        m_player_up[i % 4] = Image(m_playerPath[i]);
+        if (!m_player_up[i % 4].load(m_renderer.getSDLRenderer())) {
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -100,5 +117,10 @@ bool Game::init_image_path() {
     for (int i = 0; i < 2; i++) {
         m_animalPath[i] = "image/animal_" + std::to_string(i) + ".png";
     }
+
+    for (int i = 0; i < 16; i++) {
+        m_playerPath[i] = "image/player_" + std::to_string(i) + ".png";
+    }
+
     return true;
 }

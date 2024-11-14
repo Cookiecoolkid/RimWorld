@@ -57,6 +57,11 @@ public:
     static const int ANIMAL_IMAGE_NUMBERS;
     // 动物总数
     static const int ANIMAL_NUMBERS;
+
+
+    // Player
+    static const int PLAYER_NUMBERS;
+    static const int PLAYER_IMAGE_NUMBERS;
 };
 
 #endif // CONFIG_H

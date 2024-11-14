@@ -43,7 +43,10 @@ SDL_Renderer* Renderer::getSDLRenderer() const {
 }
 
 void Renderer::renderMap(const Map& map, int mapStartX, int mapStartY, const Image& tree, 
-                    const Image& animal_left, const Image& animal_right) {
+                    const Image& animal_left, const Image& animal_right, std::array<Image, 4>& player_down,
+                    std::array<Image, 4>& player_left, std::array<Image, 4>& player_right,
+                    std::array<Image, 4>& player_up) {
+
     for (int y = mapStartY; y < mapStartY + Config::MAP_RENDER_HEIGHT && y < Config::MAP_HEIGHT; ++y) {
         for (int x = mapStartX; x < mapStartX + Config::MAP_RENDER_WIDTH && x < Config::MAP_WIDTH; ++x) {
             Tile tile = map.getTile(x, y);
@@ -58,8 +61,6 @@ void Renderer::renderMap(const Map& map, int mapStartX, int mapStartY, const Ima
                     break;
                 case Tile::ANIMAL: {
                     const Animal& animal = map.getAnimalAt(x, y);
-                    
-
                     int animalRenderX = renderX + (animal.targetX - animal.x) * unitSize * animal.moveProgress / Config::ANIMAL_MOVE_FRAMES;
                     int animalRenderY = renderY + (animal.targetY - animal.y) * unitSize * animal.moveProgress / Config::ANIMAL_MOVE_FRAMES;
                     if (animal.img_direction == Entity::LEFT) {
@@ -69,6 +70,10 @@ void Renderer::renderMap(const Map& map, int mapStartX, int mapStartY, const Ima
                     }
                     break;
                 }
+                case Tile::PLAYER:
+                    DEBUG("Player at (%d, %d)\n", x, y);
+                    renderCopyImage(player_down[0], renderX, renderY, unitSize, unitSize);
+                    break;
                 default:
                     break;
             }

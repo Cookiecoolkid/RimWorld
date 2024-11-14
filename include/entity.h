@@ -40,7 +40,9 @@ class Player : public Entity {
 public:
     Player();
     ~Player() = default;
-    void action();
+
+    int x = 0;
+    int y = 0;
 };
 
 #endif // ENTITY_H

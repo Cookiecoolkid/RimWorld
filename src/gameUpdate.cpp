@@ -66,4 +66,9 @@ void Game::updateGameState() {
         // 更新动物的 x,y 和 Tile 要保持同步
         m_map.tryUpdateAnimalTile(i);
     }
+
+    for (int i = 0; i < Config::PLAYER_NUMBERS; ++i) {
+        Player& player = m_map.m_player_entity[i];
+        DEBUG("Player %d at (%d, %d)\n", i, player.x, player.y);
+    }
 }
