@@ -52,7 +52,6 @@ Map::Map(int width, int height) : m_width(width), m_height(height) {
         m_player_entity[i].direction = Entity::DOWN;
 
         setTile(m_player_entity[i].x, m_player_entity[i].y, Tile::PLAYER);
-        DEBUG("Player at (%d, %d)\n", x, y);
     }
 }
 
@@ -116,6 +115,17 @@ bool Map::isPositionOccupied(int x, int y) const {
     return false;
 }
 
+void Map::setStoreArea(int startX, int startY, int endX, int endY) {
+    for (int y = startY; y <= endY; ++y) {
+        for (int x = startX; x <= endX; ++x) {
+            if (getTile(x, y).getType() == Tile::EMPTY) {
+                setTile(x, y, Tile::STORE);
+            }
+        }
+    }
+}
+
+
 
 void Map::printMapTileType() const {
     for (int y = 0; y < m_height; ++y) {
@@ -129,6 +139,8 @@ void Map::printMapTileType() const {
                 std::cout << "A";
             } else if (type == Tile::PLAYER) {
                 std::cout << "P";
+            } else if (type == Tile::STORE) {
+                std::cout << "S";
             }
             
         }

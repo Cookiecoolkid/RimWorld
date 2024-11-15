@@ -16,6 +16,7 @@ public:
     void clear();
     void present();
     void renderCopyImage(const Image& image, int x, int y, int w, int h);
+    void renderStartScreen();   
 
     void setMapMovingOffset(int offsetX, int offsetY);
     int getMapMovingOffsetX() const;

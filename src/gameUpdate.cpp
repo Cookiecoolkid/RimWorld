@@ -69,6 +69,5 @@ void Game::updateGameState() {
 
     for (int i = 0; i < Config::PLAYER_NUMBERS; ++i) {
         Player& player = m_map.m_player_entity[i];
-        DEBUG("Player %d at (%d, %d)\n", i, player.x, player.y);
     }
 }

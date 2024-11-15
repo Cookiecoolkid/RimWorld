@@ -7,6 +7,12 @@ const std::string Config::WINDOW_TITLE = "RimWorld";
 const int Config::WINDOW_WIDTH = 2560;
 const int Config::WINDOW_HEIGHT = 1600;
 
+// 开始界面 开始按钮设置
+const int Config::START_BUTTON_X = Config::WINDOW_WIDTH / 2 - 200;
+const int Config::START_BUTTON_Y = Config::WINDOW_HEIGHT / 2 - 100;
+const int Config::START_BUTTON_WIDTH = 400;
+const int Config::START_BUTTON_HEIGHT = 200;
+
 // 随机生成的树木数量
 const int Config::INIT_TREE_COUNT = 128;
 

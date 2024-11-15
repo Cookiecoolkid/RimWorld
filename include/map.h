@@ -9,7 +9,7 @@
 
 class Tile {
 public:
-    enum Type { EMPTY, TREE, WALL, DOOR, ANIMAL, PLAYER, CUTED_TREE };  
+    enum Type { EMPTY, TREE, WALL, DOOR, ANIMAL, PLAYER, CUTED_TREE, STORE };  
 
     Tile(Type type = EMPTY);
 
@@ -24,11 +24,8 @@ class Map {
 public:
     Map(int width, int height);
 
-    Tile getTile(int x, int y) const;
-
-    void setTile(int x, int y, Tile::Type type);
-
     void placeRandomTrees(int count);
+    void setStoreArea(int startX, int startY, int endX, int endY);
 
     // Animal
     Animal m_animal_entity[32];
@@ -43,6 +40,9 @@ public:
     const Animal& getAnimalAt(int x, int y) const;
 
     void printMapTileType() const;
+    
+    Tile getTile(int x, int y) const;
+    void setTile(int x, int y, Tile::Type type);
 
 private:
     int m_width;

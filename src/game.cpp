@@ -6,8 +6,8 @@
 #include <cassert>
 
 Game::Game(const std::string& title, int width, int height)
-    : m_window(title, width, height), m_renderer(nullptr), m_timer(), m_isRunning(false), m_background(""),
-      m_tree(""), m_cuted_tree(""), m_map(Config::MAP_WIDTH, Config::MAP_HEIGHT) {}
+    : m_window(title, width, height), m_renderer(nullptr), m_timer(), m_mode(MODE_START), m_isRunning(false), 
+      m_background(""), m_tree(""), m_cuted_tree(""), m_map(Config::MAP_WIDTH, Config::MAP_HEIGHT) {}
 
 Game::~Game() {
     DEBUG("Game Destructor\n");
@@ -20,6 +20,7 @@ void Game::registerCallbacks() {
     m_eventManager.registerCallback(EventManager::QUIT, [this](const SDL_Event& event) { this->onQuit(event); });
     m_eventManager.registerCallback(EventManager::KEYDOWN, [this](const SDL_Event& event) { this->onKeyDown(event); });
     m_eventManager.registerCallback(EventManager::MOUSEBUTTONDOWN, [this](const SDL_Event& event) { this->onMouseButtonDown(event); });
+    m_eventManager.registerCallback(EventManager::MOUSEBUTTONUP, [this](const SDL_Event& event) { this->onMouseButtonUp(event); });
 }
 
 
@@ -33,7 +34,9 @@ void Game::run() {
     registerCallbacks();
 
     while (m_isRunning) {
-        m_map.printMapTileType();
+        // DEBUG 地图TILE类型
+        // m_map.printMapTileType();
+        
         // 定时器计算时间
         // float deltaTime = m_timer.getDeltaTicks();
 
@@ -49,10 +52,13 @@ void Game::run() {
         // 更新渲染
         m_renderer.renderCopyImage(m_background, 0, 0, Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT);
 
-        // 渲染地图
-        m_renderer.renderMap(m_map, m_mapStartX, m_mapStartY, m_tree, m_animal_left, m_animal_right,
-                                m_player_down, m_player_left, m_player_right, m_player_up);
-
+        if (m_mode == MODE_START) {
+            m_renderer.renderStartScreen();
+        } else {
+            // 渲染地图
+            m_renderer.renderMap(m_map, m_mapStartX, m_mapStartY, m_tree, m_animal_left, m_animal_right,
+                                    m_player_down, m_player_left, m_player_right, m_player_up);
+        }
         // 显示渲染内容
         m_renderer.present();
 

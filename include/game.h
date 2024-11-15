@@ -9,6 +9,7 @@
 #include "eventManager.h"
 #include "entity.h"
 #include "config.h"
+#include <SDL2/SDL_ttf.h>
 #include <array>
 #include <string>
 
@@ -18,6 +19,13 @@ public:
     Game(const std::string& title, int width, int height);
     ~Game();
 
+    enum MODE {
+        MODE_START,
+        MODE_NONE,
+        MODE_STORE,
+        MODE_BUILD
+    };
+
     bool init();
     void run();
     bool init_load_image();
@@ -25,12 +33,16 @@ public:
     void updateGameState();
 
 private:
+    // Basic Game Components 
     Window m_window;
     Renderer m_renderer;
     TimeController m_timer;
-    
+
+    // Game State
+    MODE m_mode;
     bool m_isRunning;
     
+    // Images
     Image m_background;
     Image m_tree;
     Image m_cuted_tree;
@@ -44,7 +56,7 @@ private:
     std::array<Image, 4> m_player_left;
     std::array<Image, 4> m_player_right;
 
-
+    // Map
     Map m_map;
     // 地图渲染起始位置(最左上角的坐标)
     int m_mapStartX;
@@ -56,6 +68,12 @@ private:
     int m_currentFrame = 0;
     bool m_isMapMoving = false;
 
+    // Store Area
+    int m_storeStartX = 0;
+    int m_storeStartY = 0;
+    int m_storeEndX = 0;
+    int m_storeEndY = 0;
+
 
     EventManager m_eventManager;
 
@@ -64,6 +82,7 @@ private:
     void onQuit(const SDL_Event& event);
     void onKeyDown(const SDL_Event& event);
     void onMouseButtonDown(const SDL_Event& event);
+    void onMouseButtonUp(const SDL_Event& event);
 
     // Game Logic
     void updateMapPosition(int dx, int dy);

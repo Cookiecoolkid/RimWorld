@@ -20,6 +20,12 @@ public:
     static const int WINDOW_WIDTH;
     static const int WINDOW_HEIGHT;
 
+    // 开始界面 开始按钮设置
+    static const int START_BUTTON_X;
+    static const int START_BUTTON_Y;
+    static const int START_BUTTON_WIDTH;
+    static const int START_BUTTON_HEIGHT;
+
     // 随机生成的树木数量
     static const int INIT_TREE_COUNT;
 
