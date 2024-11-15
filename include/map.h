@@ -26,6 +26,7 @@ public:
 
     void placeRandomTrees(int count);
     void setStoreArea(int startX, int startY, int endX, int endY);
+    void setCutArea(int startX, int startY, int endX, int endY);
 
     // Animal
     Animal m_animal_entity[32];

@@ -13,6 +13,9 @@
 #include <array>
 #include <string>
 
+#ifndef IMG_INIT_GIF
+#define IMG_INIT_GIF 0x00000004
+#endif
 
 class Game {
 public:
@@ -23,6 +26,7 @@ public:
         MODE_START,
         MODE_NONE,
         MODE_STORE,
+        MODE_CUT,
         MODE_BUILD
     };
 

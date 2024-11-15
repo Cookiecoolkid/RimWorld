@@ -125,6 +125,15 @@ void Map::setStoreArea(int startX, int startY, int endX, int endY) {
     }
 }
 
+void Map::setCutArea(int startX, int startY, int endX, int endY) {
+    for (int y = startY; y <= endY; ++y) {
+        for (int x = startX; x <= endX; ++x) {
+            if (getTile(x, y).getType() == Tile::TREE) {
+                setTile(x, y, Tile::CUTED_TREE);
+            }
+        }
+    }
+}
 
 
 void Map::printMapTileType() const {

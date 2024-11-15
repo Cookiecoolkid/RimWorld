@@ -11,8 +11,10 @@ Game::Game(const std::string& title, int width, int height)
 
 Game::~Game() {
     DEBUG("Game Destructor\n");
+
     // Sequence is important
     IMG_Quit(); 
+    TTF_Quit();
     SDL_Quit();
 }
 
@@ -56,8 +58,8 @@ void Game::run() {
             m_renderer.renderStartScreen();
         } else {
             // 渲染地图
-            m_renderer.renderMap(m_map, m_mapStartX, m_mapStartY, m_tree, m_animal_left, m_animal_right,
-                                    m_player_down, m_player_left, m_player_right, m_player_up);
+            m_renderer.renderMap(m_map, m_mapStartX, m_mapStartY, m_tree, m_cuted_tree, m_animal_left, 
+                                 m_animal_right, m_player_down, m_player_left, m_player_right, m_player_up);
         }
         // 显示渲染内容
         m_renderer.present();

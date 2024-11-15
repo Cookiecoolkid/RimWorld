@@ -13,6 +13,9 @@ const int Config::START_BUTTON_Y = Config::WINDOW_HEIGHT / 2 - 100;
 const int Config::START_BUTTON_WIDTH = 400;
 const int Config::START_BUTTON_HEIGHT = 200;
 
+// 字体文件路径
+const std::string Config::FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf";
+
 // 随机生成的树木数量
 const int Config::INIT_TREE_COUNT = 128;
 

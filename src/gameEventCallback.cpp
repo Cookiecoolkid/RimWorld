@@ -37,6 +37,10 @@ void Game::onKeyDown(const SDL_Event& event) {
             m_mode = MODE_STORE;
             DEBUG("Mode: Store\n");
             break;
+        case SDLK_3:
+            m_mode = MODE_CUT;
+            DEBUG("Mode: Cut\n");
+            break;
         default:
             break;
     }
@@ -55,7 +59,7 @@ void Game::onMouseButtonDown(const SDL_Event& event) {
             mouseY >= startButton.y && mouseY <= startButton.y + startButton.h) {
             m_mode = MODE_NONE; // 切换到游戏状态
         }
-    } else if (m_mode == MODE_STORE && event.button.button == SDL_BUTTON_LEFT) {
+    } else if ((m_mode == MODE_STORE || m_mode == MODE_CUT) && event.button.button == SDL_BUTTON_LEFT) {
         m_storeStartX = x;
         m_storeStartY = y;
     }
@@ -64,7 +68,7 @@ void Game::onMouseButtonDown(const SDL_Event& event) {
 void Game::onMouseButtonUp(const SDL_Event& event) {
     int x = event.button.x / Config::MAP_UNIT_SIZE + m_mapStartX;
     int y = event.button.y / Config::MAP_UNIT_SIZE + m_mapStartY;
-    if (m_mode == MODE_STORE && event.button.button == SDL_BUTTON_LEFT) {
+    if ((m_mode == MODE_STORE || m_mode == MODE_CUT) && event.button.button == SDL_BUTTON_LEFT) {
         m_storeEndX = x;
         m_storeEndY = y;
 
@@ -76,6 +80,10 @@ void Game::onMouseButtonUp(const SDL_Event& event) {
             std::swap(m_storeStartY, m_storeEndY);
         }
 
-        m_map.setStoreArea(m_storeStartX, m_storeStartY, m_storeEndX, m_storeEndY);
+        if (m_mode == MODE_STORE) {
+            m_map.setStoreArea(m_storeStartX, m_storeStartY, m_storeEndX, m_storeEndY);
+        } else if (m_mode == MODE_CUT) {
+            m_map.setCutArea(m_storeStartX, m_storeStartY, m_storeEndX, m_storeEndY);
+        }
     }
 }

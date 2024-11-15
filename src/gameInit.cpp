@@ -12,18 +12,32 @@ bool Game::init() {
     DEBUG("SDL_Init Success\n");
 
     // IMG 初始化
-    if (IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG) {
+    int imgFlags = IMG_INIT_PNG | IMG_INIT_GIF;
+    if ((IMG_Init(imgFlags) & imgFlags) != imgFlags) {
         std::cerr << "IMG_Init Error: " << IMG_GetError() << std::endl;
+        SDL_Quit();
         return false;
     }
+
+    DEBUG("IMG_Init Success\n");
 
     // Window 初始化
     if (!m_window.init()) {
         return false;
     }
 
+    DEBUG("Window Init Success\n");
+
+    if (TTF_Init() < 0) {
+        std::cerr << "Failed to initialize SDL_ttf: " << TTF_GetError() << std::endl;
+        return false;
+    }
+
+    DEBUG("TTF_Init Success\n");
+
     // Renderer 初始化
     m_renderer = Renderer(m_window.getSDLWindow());
+
     if (!m_renderer.init()) {
         return false;
     }

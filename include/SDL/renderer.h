@@ -3,6 +3,7 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 #include "map.h"
 #include "image.h"
 #include <array>
@@ -17,6 +18,7 @@ public:
     void present();
     void renderCopyImage(const Image& image, int x, int y, int w, int h);
     void renderStartScreen();   
+    void renderText(const std::string& text, const SDL_Rect& rect, SDL_Color color);
 
     void setMapMovingOffset(int offsetX, int offsetY);
     int getMapMovingOffsetX() const;
@@ -24,7 +26,7 @@ public:
     
     SDL_Renderer* getSDLRenderer() const;
 
-    void renderMap(const Map& map, int mapStartX, int mapStartY, const Image& image, 
+    void renderMap(const Map& map, int mapStartX, int mapStartY, const Image& image, const Image& cuted_tree,
         const Image& animal_left, const Image& animal_right, std::array<Image, 4>& player_down,
         std::array<Image, 4>& player_left, std::array<Image, 4>& player_right, 
         std::array<Image, 4>& player_up);
@@ -32,6 +34,8 @@ public:
 private:
     SDL_Window* m_window;
     SDL_Renderer* m_renderer;
+    
+    TTF_Font* m_font;
 
     int mapMoving_offsetX = 0;
     int mapMoving_offsetY = 0;

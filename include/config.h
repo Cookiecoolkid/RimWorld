@@ -26,6 +26,9 @@ public:
     static const int START_BUTTON_WIDTH;
     static const int START_BUTTON_HEIGHT;
 
+    // 字体文件路径
+    static const std::string FONT_PATH;
+
     // 随机生成的树木数量
     static const int INIT_TREE_COUNT;
 
