@@ -54,13 +54,11 @@ void Game::updateGameState() {
         if (!animal.isMoving) {
             // 随机选择一个方向 但可能不移动
             std::pair<int, int> move = animal.action();
-            int new_x = move.first;
-            int new_y = move.second;
 
-            if (new_x == -1 && new_y == -1) continue;
+            if (move.first == -1 && move.second == -1) continue;
 
-            if (m_map.canMoveTo(new_x, new_y)) {
-                animal.startMove(new_x, new_y);
+            if (m_map.canMoveTo(move.first, move.second)) {
+                animal.startMove(move.first, move.second);
             }
         }
         // 更新动物的 x,y 和 Tile 要保持同步

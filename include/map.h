@@ -13,16 +13,29 @@
 
 class Tile {
 public:
-    enum Type { EMPTY, TREE, WALL, DOOR, ANIMAL, PLAYER, CUTED_TREE, STORE };  
+    enum Type {
+        EMPTY = 0,
+        TREE = 1 << 0,
+        WALL = 1 << 1,
+        DOOR = 1 << 2,
+        ANIMAL = 1 << 3,
+        PLAYER = 1 << 4,
+        CUTED_TREE = 1 << 5,
+        STORE = 1 << 6
+    };
 
     Tile(Type type = EMPTY);
 
     Type getType() const;
     void setType(Type type);
+    void addType(Type type);
+    void removeType(Type type);
+    bool hasType(Type type) const;
 
 private:
-    Type m_type;
+    int m_type; // 使用位掩码来表示不同的 Tile 类型
 };
+
 
 class Map {
 public:
@@ -31,7 +44,7 @@ public:
     void placeRandomTrees(int count);
     void setStoreArea(int startX, int startY, int endX, int endY);
     void setCutArea(int startX, int startY, int endX, int endY);
-    int countAdjacentTypes(int x, int y, Tile::Type type) const;
+    bool isAdjacentTypesReachCount(int x, int y, Tile::Type type, int count) const;
 
     // Animal & Player
     Animal m_animal_entity[32];
@@ -42,13 +55,17 @@ public:
     void updateAnimalTile(int index);
     bool isPositionOccupied(int x, int y) const;
     const Animal& getAnimalAt(int x, int y) const;
-    std::vector<std::pair<int, int>> findPathToTarget(int startX, int startY, Tile::Type targetType, std::function<void(int, int)> onTargetFound);
+    std::vector<std::pair<int, int>> findPathToTarget(int startX, int startY, 
+                                                    Tile::Type targetType, 
+                                                    std::function<bool(int, int)> condition, 
+                                                    std::function<void(int, int)> onTargetFound);
 
     // DEBUG
     void printMapTileType() const;
     
     Tile getTile(int x, int y) const;
-    void setTile(int x, int y, Tile::Type type);
+    void addTileType(int x, int y, Tile::Type type);
+    void removeTileType(int x, int y, Tile::Type type);
 
 private:
     int m_width;

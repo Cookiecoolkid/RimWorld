@@ -61,20 +61,18 @@ SDL_Renderer* Renderer::getSDLRenderer() const {
 }
 
 void Renderer::renderTree(int renderX, int renderY, const Map& map, int x, int y, const Image& tree) {
-    // 检查上下左右是否都是 STORE
-    int numStore = map.countAdjacentTypes(x, y, Tile::STORE);
-    if (numStore >= 2) {
-        renderStore(renderX, renderY);
-    }
+    // // 检查上下左右是否Type STORE 大于等于2
+    // if (map.isAdjacentTypesReachCount(x, y, Tile::STORE, 2)) {
+    //     renderStore(renderX, renderY);
+    // }
     renderCopyImage(tree, renderX, renderY, Config::MAP_UNIT_SIZE, Config::MAP_UNIT_SIZE);
 }
 
 void Renderer::renderCutedTree(int renderX, int renderY, const Map& map, int x, int y, const Image& cuted_tree) {
-    // 检查上下左右是否都是 STORE
-    int numStore = map.countAdjacentTypes(x, y, Tile::STORE);
-    if (numStore >= 2) {
-        renderStore(renderX, renderY);
-    }
+    // // 检查上下左右是否Type STORE 大于等于2
+    // if (map.isAdjacentTypesReachCount(x, y, Tile::STORE, 2)) {
+    //     renderStore(renderX, renderY);
+    // }
     renderCopyImage(cuted_tree, renderX, renderY, Config::MAP_UNIT_SIZE, Config::MAP_UNIT_SIZE);
 }
 
@@ -99,11 +97,28 @@ void Renderer::renderStore(int renderX, int renderY) {
     SDL_RenderFillRect(m_renderer, &storeRect);
 }
 
+void Renderer::renderStoreArea(const Map& map, int mapStartX, int mapStartY) {
+    for (int y = mapStartY; y < mapStartY + Config::MAP_RENDER_HEIGHT && y < Config::MAP_HEIGHT; ++y) {
+        for (int x = mapStartX; x < mapStartX + Config::MAP_RENDER_WIDTH && x < Config::MAP_WIDTH; ++x) {
+            Tile tile = map.getTile(x, y);
+            if (tile.hasType(Tile::STORE)) {
+                int unitSize = Config::MAP_UNIT_SIZE;
+                int renderX = (x - mapStartX) * unitSize + mapMoving_offsetX;
+                int renderY = (y - mapStartY) * unitSize + mapMoving_offsetY;
+                renderStore(renderX, renderY);
+            }
+        }
+    }
+}
+
 
 void Renderer::renderMap(const Map& map, int mapStartX, int mapStartY, const Image& tree, const Image& cuted_tree,
                          const Image& animal_left, const Image& animal_right, std::array<Image, 4>& player_down,
                          std::array<Image, 4>& player_left, std::array<Image, 4>& player_right,
                          std::array<Image, 4>& player_up) {
+
+    // 先渲染 STORE 图层 保证 STORE 在最下层完整显示
+    renderStoreArea(map, mapStartX, mapStartY);
 
     for (int y = mapStartY; y < mapStartY + Config::MAP_RENDER_HEIGHT && y < Config::MAP_HEIGHT; ++y) {
         for (int x = mapStartX; x < mapStartX + Config::MAP_RENDER_WIDTH && x < Config::MAP_WIDTH; ++x) {
@@ -113,31 +128,32 @@ void Renderer::renderMap(const Map& map, int mapStartX, int mapStartY, const Ima
             int renderX = (x - mapStartX) * unitSize + mapMoving_offsetX;
             int renderY = (y - mapStartY) * unitSize + mapMoving_offsetY;
 
-            switch (tile.getType()) {
-                case Tile::TREE:
-                    renderTree(renderX, renderY, map, x, y, tree);
-                    break;
-                case Tile::CUTED_TREE:
-                    renderCutedTree(renderX, renderY, map, x, y, cuted_tree);
-                    break;
-                case Tile::ANIMAL:
-                    renderAnimal(renderX, renderY, map, x, y, animal_left, animal_right);
-                    break;
-                case Tile::PLAYER:
-                    renderPlayer(renderX, renderY, player_down);
-                    break;
-                case Tile::STORE:
-                    renderStore(renderX, renderY);
-                    break;
-                case Tile::WALL:
-                case Tile::DOOR:
-                case Tile::EMPTY:
-                default:
-                    break;
+            // 再渲染其他类型的 Tile
+            if (tile.hasType(Tile::TREE)) {
+                renderTree(renderX, renderY, map, x, y, tree);
+            }
+            if (tile.hasType(Tile::CUTED_TREE)) {
+                renderCutedTree(renderX, renderY, map, x, y, cuted_tree);
+            }
+            if (tile.hasType(Tile::ANIMAL)) {
+                renderAnimal(renderX, renderY, map, x, y, animal_left, animal_right);
+            }
+            if (tile.hasType(Tile::PLAYER)) {
+                renderPlayer(renderX, renderY, player_down);
+            }
+            if (tile.hasType(Tile::WALL)) {
+                // TODO
+            }
+            if (tile.hasType(Tile::DOOR)) {
+                // TODO
+            }
+            if (tile.hasType(Tile::EMPTY)) {
+                // Do nothing
             }
         }
     }
 }
+
 void Renderer::renderStartScreen() {
     SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255); // 设置背景颜色为黑色
     SDL_RenderClear(m_renderer);

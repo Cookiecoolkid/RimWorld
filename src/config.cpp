@@ -58,3 +58,5 @@ const int Config::ANIMAL_NUMBERS = 10;
 // Player
 const int Config::PLAYER_NUMBERS = 2;
 const int Config::PLAYER_IMAGE_NUMBERS = 16;
+// 移动一次帧数
+const int Config::PLAYER_MOVE_FRAMES = 32;

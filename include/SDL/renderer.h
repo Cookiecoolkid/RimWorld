@@ -46,6 +46,7 @@ private:
     void renderAnimal(int renderX, int renderY, const Map& map, int x, int y, const Image& animal_left, const Image& animal_right);
     void renderPlayer(int renderX, int renderY, const std::array<Image, 4>& player_down);
     void renderStore(int renderX, int renderY);
+    void renderStoreArea(const Map& map, int mapStartX, int mapStartY);
 
 };
 

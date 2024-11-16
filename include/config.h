@@ -60,7 +60,7 @@ public:
     static const int MOVE_FRAMES;
 
     // Animal
-    // 每30帧移动一次
+    // 移动一次所需帧数
     static const int ANIMAL_MOVE_FRAMES;
     // 不同移动的图片总数
     static const int ANIMAL_IMAGE_NUMBERS;
@@ -71,6 +71,8 @@ public:
     // Player
     static const int PLAYER_NUMBERS;
     static const int PLAYER_IMAGE_NUMBERS;
+    // 移动一次所需帧数
+    static const int PLAYER_MOVE_FRAMES;
 };
 
 #endif // CONFIG_H

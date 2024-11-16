@@ -6,16 +6,28 @@
 #include <unordered_map>
 #include <functional>
 
-Tile::Tile(Type type)
-    : m_type(type) {}
+Tile::Tile(Type type): m_type(type) {}
 
 Tile::Type Tile::getType() const {
-    return m_type;
+    return static_cast<Type>(m_type);
 }
 
 void Tile::setType(Type type) {
     m_type = type;
 }
+
+void Tile::addType(Type type) {
+    m_type |= type;
+}
+
+void Tile::removeType(Type type) {
+    m_type &= ~type;
+}
+
+bool Tile::hasType(Type type) const {
+    return (m_type & type) != 0;
+}
+
 
 Map::Map(int width, int height) : m_width(width), m_height(height) {
     srand(time(nullptr));
@@ -41,7 +53,7 @@ Map::Map(int width, int height) : m_width(width), m_height(height) {
         m_animal_entity[i].direction = Entity::LEFT;
         m_animal_entity[i].img_direction = Entity::LEFT;
 
-        setTile(m_animal_entity[i].x, m_animal_entity[i].y, Tile::ANIMAL);
+        addTileType(m_animal_entity[i].x, m_animal_entity[i].y, Tile::ANIMAL);
     }
 
     // 初始化玩家的位置，确保不与任何动物重叠
@@ -55,7 +67,7 @@ Map::Map(int width, int height) : m_width(width), m_height(height) {
         m_player_entity[i].y = y;
         m_player_entity[i].direction = Entity::DOWN;
 
-        setTile(m_player_entity[i].x, m_player_entity[i].y, Tile::PLAYER);
+        addTileType(m_player_entity[i].x, m_player_entity[i].y, Tile::PLAYER);
     }
 }
 
@@ -63,8 +75,12 @@ Tile Map::getTile(int x, int y) const {
     return m_tiles[x][y];
 }
 
-void Map::setTile(int x, int y, Tile::Type type) {
-    m_tiles[x][y].setType(type);
+void Map::addTileType(int x, int y, Tile::Type type) {
+    m_tiles[x][y].addType(type);
+}
+
+void Map::removeTileType(int x, int y, Tile::Type type) {
+    m_tiles[x][y].removeType(type);
 }
 
 void Map::placeRandomTrees(int count) {
@@ -72,7 +88,7 @@ void Map::placeRandomTrees(int count) {
         int x = std::rand() % m_width;
         int y = std::rand() % m_height;
 
-        setTile(x, y, Tile::TREE);
+        addTileType(x, y, Tile::TREE);
     }
 }
 
@@ -80,7 +96,10 @@ bool Map::canMoveTo(int x, int y) {
     if (x < 0 || x >= Config::MAP_WIDTH || y < 0 || y >= Config::MAP_HEIGHT) {
         return false;
     }
-    return getTile(x, y).getType() == Tile::EMPTY;
+
+    Tile::Type type = getTile(x, y).getType();
+
+    return type == Tile::EMPTY || type == Tile::STORE;
 }
 
 // 这里需要注意 Tile 是和 Animal 的 x, y 属性对应，因此只有更新 x,y 的时候才可以更新 Tile 以保持同步
@@ -97,8 +116,8 @@ void Map::tryUpdateAnimalTile(int index) {
 }
 
 void Map::updateAnimalTile(int index) {
-    setTile(m_animal_entity[index].x, m_animal_entity[index].y, Tile::EMPTY);
-    setTile(m_animal_entity[index].targetX, m_animal_entity[index].targetY, Tile::ANIMAL);
+    removeTileType(m_animal_entity[index].x, m_animal_entity[index].y, Tile::ANIMAL);
+    addTileType(m_animal_entity[index].targetX, m_animal_entity[index].targetY, Tile::ANIMAL);
 }
 
 
@@ -113,7 +132,9 @@ const Animal& Map::getAnimalAt(int x, int y) const {
 }
 
 bool Map::isPositionOccupied(int x, int y) const {
-    if (getTile(x, y).getType() != Tile::EMPTY) {
+    Tile tile = getTile(x, y);
+    if (tile.hasType(Tile::ANIMAL) || tile.hasType(Tile::PLAYER) || tile.hasType(Tile::TREE) ||
+        tile.hasType(Tile::CUTED_TREE) || tile.hasType(Tile::WALL)) {
         return true;
     }
     return false;
@@ -122,8 +143,10 @@ bool Map::isPositionOccupied(int x, int y) const {
 void Map::setStoreArea(int startX, int startY, int endX, int endY) {
     for (int y = startY; y <= endY; ++y) {
         for (int x = startX; x <= endX; ++x) {
-            if (getTile(x, y).getType() == Tile::EMPTY) {
-                setTile(x, y, Tile::STORE);
+            Tile tile = getTile(x, y);
+            if (!tile.hasType(Tile::TREE) && !tile.hasType(Tile::CUTED_TREE) && 
+                !tile.hasType(Tile::WALL)) {
+                addTileType(x, y, Tile::STORE);
             }
         }
     }
@@ -132,30 +155,33 @@ void Map::setStoreArea(int startX, int startY, int endX, int endY) {
 void Map::setCutArea(int startX, int startY, int endX, int endY) {
     for (int y = startY; y <= endY; ++y) {
         for (int x = startX; x <= endX; ++x) {
-            if (getTile(x, y).getType() == Tile::TREE) {
-                setTile(x, y, Tile::CUTED_TREE);
+            Tile tile = getTile(x, y);
+            if (tile.hasType(Tile::TREE)) {
+                addTileType(x, y, Tile::CUTED_TREE);
+                removeTileType(x, y, Tile::TREE);
             }
         }
     }
 }
 
-int Map::countAdjacentTypes(int x, int y, Tile::Type type) const {
+bool Map::isAdjacentTypesReachCount(int x, int y, Tile::Type type, int count) const {
     int numStore = 0;
     std::vector<std::pair<int, int>> directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
     for (const auto& dir : directions) {
         int newX = x + dir.first;
         int newY = y + dir.second;
         if (newX >= 0 && newX < Config::MAP_WIDTH && newY >= 0 && newY < Config::MAP_HEIGHT) {
-            if (getTile(newX, newY).getType() == type) {
+            if (getTile(newX, newY).hasType(type)) {
                 numStore++;
             }
         }
     }
-    return numStore;
+    return numStore >= count;
 }
 
 // 通用的寻路函数
-std::vector<std::pair<int, int>> Map::findPathToTarget(int startX, int startY, Tile::Type targetType, std::function<void(int, int)> onTargetFound) {
+std::vector<std::pair<int, int>> Map::findPathToTarget(int startX, int startY, Tile::Type targetType, 
+                                    std::function<bool(int, int)> condition, std::function<void(int, int)> onTargetFound) {
     std::queue<std::pair<int, int>> q;
     std::unordered_map<int, std::pair<int, int>> parent;
     std::vector<std::pair<int, int>> directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
@@ -171,7 +197,7 @@ std::vector<std::pair<int, int>> Map::findPathToTarget(int startX, int startY, T
             int newY = y + dir.second;
 
             if (newX >= 0 && newX < m_width && newY >= 0 && newY < m_height &&
-                parent.find(newY * m_width + newX) == parent.end()) {
+                condition(newX, newY) && parent.find(newY * m_width + newX) == parent.end()) {
                 parent[newY * m_width + newX] = {x, y};
                 q.push({newX, newY});
 
@@ -195,22 +221,24 @@ std::vector<std::pair<int, int>> Map::findPathToTarget(int startX, int startY, T
 void Map::printMapTileType() const {
     for (int y = 0; y < m_height; ++y) {
         for (int x = 0; x < m_width; ++x) {
-            Tile::Type type = getTile(x, y).getType();
-            if (type == Tile::EMPTY) {
-                std::cout << " ";
-            } else if (type == Tile::TREE) {
-                std::cout << " ";
-            } else if (type == Tile::ANIMAL) {
-                std::cout << "A";
-            } else if (type == Tile::PLAYER) {
-                std::cout << "P";
-            } else if (type == Tile::STORE) {
-                std::cout << "S";
+            Tile tile = getTile(x, y);
+            if (tile.hasType(Tile::ANIMAL)) {
+                std::cout << "A ";
+            } else if (tile.hasType(Tile::PLAYER)) {
+                std::cout << "P ";
+            } else if (tile.hasType(Tile::TREE)) {
+                std::cout << "T ";
+            } else if (tile.hasType(Tile::CUTED_TREE)) {
+                std::cout << "C ";
+            } else if (tile.hasType(Tile::WALL)) {
+                std::cout << "W ";
+            } else {
+                std::cout << "  ";
             }
             
         }
         std::cout << std::endl;
     }
 
-    std::cout << "----------------------------------------------------------------------------" << std::endl;
+    std::cout << "---------------------------------------------------------------------------------" << std::endl;
 }
