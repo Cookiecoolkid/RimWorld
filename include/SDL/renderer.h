@@ -19,6 +19,7 @@ public:
     void renderCopyImage(const Image& image, int x, int y, int w, int h);
     void renderStartScreen();   
     void renderText(const std::string& text, const SDL_Rect& rect, SDL_Color color);
+    void renderBackground(const Image& background, int offsetX, int offsetY);
 
     void setMapMovingOffset(int offsetX, int offsetY);
     int getMapMovingOffsetX() const;
@@ -26,7 +27,8 @@ public:
     
     SDL_Renderer* getSDLRenderer() const;
 
-    void renderMap(const Map& map, int mapStartX, int mapStartY, const Image& image, const Image& cuted_tree,
+    void renderMap(const Map& map, int mapStartX, int mapStartY, const Image& background,
+        const Image& tree, const Image& cuted_tree,
         const Image& animal_left, const Image& animal_right, std::array<Image, 4>& player_down,
         std::array<Image, 4>& player_left, std::array<Image, 4>& player_right, 
         std::array<Image, 4>& player_up);

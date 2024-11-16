@@ -111,11 +111,33 @@ void Renderer::renderStoreArea(const Map& map, int mapStartX, int mapStartY) {
     }
 }
 
+void Renderer::renderBackground(const Image& image, int offsetX, int offsetY) {
+    int imageWidth = Config::IMAGE_BACKGROUND_WIDTH;
+    int imageHeight = Config::IMAGE_BACKGROUND_HEIGHT;
 
-void Renderer::renderMap(const Map& map, int mapStartX, int mapStartY, const Image& tree, const Image& cuted_tree,
+    // 计算背景图片的裁剪区域
+    int clipX = offsetX % imageWidth;
+    int clipY = offsetY % imageHeight;
+
+    SDL_Rect srcRect = { clipX, clipY, Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT };
+    SDL_Rect destRect = { 0, 0, Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT };
+
+    // 渲染背景图片
+    SDL_RenderCopy(m_renderer, image.getTexture(), &srcRect, &destRect);
+}
+
+
+void Renderer::renderMap(const Map& map, int mapStartX, int mapStartY, const Image& background,
+                         const Image& tree, const Image& cuted_tree,
                          const Image& animal_left, const Image& animal_right, std::array<Image, 4>& player_down,
                          std::array<Image, 4>& player_left, std::array<Image, 4>& player_right,
                          std::array<Image, 4>& player_up) {
+
+    // renderCopyImage(background, 0, 0, Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT);
+    int backgroundOffsetX = mapStartX * Config::MAP_UNIT_SIZE - mapMoving_offsetX;
+    int backgroundOffsetY = mapStartY * Config::MAP_UNIT_SIZE - mapMoving_offsetY;
+
+    renderBackground(background, backgroundOffsetX, backgroundOffsetY);
 
     // 先渲染 STORE 图层 保证 STORE 在最下层完整显示
     renderStoreArea(map, mapStartX, mapStartY);
@@ -127,6 +149,7 @@ void Renderer::renderMap(const Map& map, int mapStartX, int mapStartY, const Ima
             int unitSize = Config::MAP_UNIT_SIZE;
             int renderX = (x - mapStartX) * unitSize + mapMoving_offsetX;
             int renderY = (y - mapStartY) * unitSize + mapMoving_offsetY;
+
 
             // 再渲染其他类型的 Tile
             if (tile.hasType(Tile::TREE)) {

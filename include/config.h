@@ -38,7 +38,8 @@ public:
     static const std::string IMAGE_CUTED_TREE_PATH;
 
     // 图片大小
-    static const int IMAGE_BACKGROUND_SIZE;
+    static const int IMAGE_BACKGROUND_WIDTH;
+    static const int IMAGE_BACKGROUND_HEIGHT;
     static const int IMAGE_TREE_SIZE;
     static const int IMAGE_CUTED_TREE_SIZE;
 

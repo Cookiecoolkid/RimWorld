@@ -52,13 +52,11 @@ void Game::run() {
         updateGameState();
 
         // 更新渲染
-        m_renderer.renderCopyImage(m_background, 0, 0, Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT);
-
         if (m_mode == MODE_START) {
             m_renderer.renderStartScreen();
         } else {
             // 渲染地图
-            m_renderer.renderMap(m_map, m_mapStartX, m_mapStartY, m_tree, m_cuted_tree, m_animal_left, 
+            m_renderer.renderMap(m_map, m_mapStartX, m_mapStartY, m_background, m_tree, m_cuted_tree, m_animal_left, 
                                  m_animal_right, m_player_down, m_player_left, m_player_right, m_player_up);
         }
         // 显示渲染内容
