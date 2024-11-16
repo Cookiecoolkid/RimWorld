@@ -39,6 +39,14 @@ private:
 
     int mapMoving_offsetX = 0;
     int mapMoving_offsetY = 0;
+
+
+    void renderTree(int renderX, int renderY, const Map& map, int x, int y, const Image& tree);
+    void renderCutedTree(int renderX, int renderY, const Map& map, int x, int y, const Image& cuted_tree);
+    void renderAnimal(int renderX, int renderY, const Map& map, int x, int y, const Image& animal_left, const Image& animal_right);
+    void renderPlayer(int renderX, int renderY, const std::array<Image, 4>& player_down);
+    void renderStore(int renderX, int renderY);
+
 };
 
 #endif // RENDERER_H

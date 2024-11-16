@@ -1,6 +1,10 @@
 #include <iostream>
 #include "map.h"
 #include "config.h"
+#include <queue>
+#include <vector>
+#include <unordered_map>
+#include <functional>
 
 Tile::Tile(Type type)
     : m_type(type) {}
@@ -133,6 +137,58 @@ void Map::setCutArea(int startX, int startY, int endX, int endY) {
             }
         }
     }
+}
+
+int Map::countAdjacentTypes(int x, int y, Tile::Type type) const {
+    int numStore = 0;
+    std::vector<std::pair<int, int>> directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+    for (const auto& dir : directions) {
+        int newX = x + dir.first;
+        int newY = y + dir.second;
+        if (newX >= 0 && newX < Config::MAP_WIDTH && newY >= 0 && newY < Config::MAP_HEIGHT) {
+            if (getTile(newX, newY).getType() == type) {
+                numStore++;
+            }
+        }
+    }
+    return numStore;
+}
+
+// 通用的寻路函数
+std::vector<std::pair<int, int>> Map::findPathToTarget(int startX, int startY, Tile::Type targetType, std::function<void(int, int)> onTargetFound) {
+    std::queue<std::pair<int, int>> q;
+    std::unordered_map<int, std::pair<int, int>> parent;
+    std::vector<std::pair<int, int>> directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+    q.push({startX, startY});
+    parent[startY * m_width + startX] = {-1, -1};
+
+    while (!q.empty()) {
+        auto [x, y] = q.front();
+        q.pop();
+
+        for (const auto& dir : directions) {
+            int newX = x + dir.first;
+            int newY = y + dir.second;
+
+            if (newX >= 0 && newX < m_width && newY >= 0 && newY < m_height &&
+                parent.find(newY * m_width + newX) == parent.end()) {
+                parent[newY * m_width + newX] = {x, y};
+                q.push({newX, newY});
+
+                if (getTile(newX, newY).getType() == targetType) {
+                    std::vector<std::pair<int, int>> path;
+                    for (auto p = std::make_pair(newX, newY); p != std::make_pair(-1, -1); p = parent[p.second * m_width + p.first]) {
+                        path.push_back(p);
+                    }
+                    std::reverse(path.begin(), path.end());
+                    onTargetFound(newX, newY);
+                    return path;
+                }
+            }
+        }
+    }
+
+    return {};
 }
 
 

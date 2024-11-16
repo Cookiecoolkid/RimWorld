@@ -60,10 +60,50 @@ SDL_Renderer* Renderer::getSDLRenderer() const {
     return m_renderer;
 }
 
+void Renderer::renderTree(int renderX, int renderY, const Map& map, int x, int y, const Image& tree) {
+    // 检查上下左右是否都是 STORE
+    int numStore = map.countAdjacentTypes(x, y, Tile::STORE);
+    if (numStore >= 2) {
+        renderStore(renderX, renderY);
+    }
+    renderCopyImage(tree, renderX, renderY, Config::MAP_UNIT_SIZE, Config::MAP_UNIT_SIZE);
+}
+
+void Renderer::renderCutedTree(int renderX, int renderY, const Map& map, int x, int y, const Image& cuted_tree) {
+    // 检查上下左右是否都是 STORE
+    int numStore = map.countAdjacentTypes(x, y, Tile::STORE);
+    if (numStore >= 2) {
+        renderStore(renderX, renderY);
+    }
+    renderCopyImage(cuted_tree, renderX, renderY, Config::MAP_UNIT_SIZE, Config::MAP_UNIT_SIZE);
+}
+
+void Renderer::renderAnimal(int renderX, int renderY, const Map& map, int x, int y, const Image& animal_left, const Image& animal_right) {
+    const Animal& animal = map.getAnimalAt(x, y);
+    int animalRenderX = renderX + (animal.targetX - animal.x) * Config::MAP_UNIT_SIZE * animal.moveProgress / Config::ANIMAL_MOVE_FRAMES;
+    int animalRenderY = renderY + (animal.targetY - animal.y) * Config::MAP_UNIT_SIZE * animal.moveProgress / Config::ANIMAL_MOVE_FRAMES;
+    if (animal.img_direction == Entity::LEFT) {
+        renderCopyImage(animal_left, animalRenderX, animalRenderY, Config::MAP_UNIT_SIZE, Config::MAP_UNIT_SIZE);
+    } else if (animal.img_direction == Entity::RIGHT) {
+        renderCopyImage(animal_right, animalRenderX, animalRenderY, Config::MAP_UNIT_SIZE, Config::MAP_UNIT_SIZE);
+    }
+}
+
+void Renderer::renderPlayer(int renderX, int renderY, const std::array<Image, 4>& player_down) {
+    renderCopyImage(player_down[0], renderX, renderY, Config::MAP_UNIT_SIZE, Config::MAP_UNIT_SIZE);
+}
+
+void Renderer::renderStore(int renderX, int renderY) {
+    SDL_SetRenderDrawColor(m_renderer, 173, 216, 230, 128);
+    SDL_Rect storeRect = { renderX, renderY, Config::MAP_UNIT_SIZE, Config::MAP_UNIT_SIZE };
+    SDL_RenderFillRect(m_renderer, &storeRect);
+}
+
+
 void Renderer::renderMap(const Map& map, int mapStartX, int mapStartY, const Image& tree, const Image& cuted_tree,
-                    const Image& animal_left, const Image& animal_right, std::array<Image, 4>& player_down,
-                    std::array<Image, 4>& player_left, std::array<Image, 4>& player_right,
-                    std::array<Image, 4>& player_up) {
+                         const Image& animal_left, const Image& animal_right, std::array<Image, 4>& player_down,
+                         std::array<Image, 4>& player_left, std::array<Image, 4>& player_right,
+                         std::array<Image, 4>& player_up) {
 
     for (int y = mapStartY; y < mapStartY + Config::MAP_RENDER_HEIGHT && y < Config::MAP_HEIGHT; ++y) {
         for (int x = mapStartX; x < mapStartX + Config::MAP_RENDER_WIDTH && x < Config::MAP_WIDTH; ++x) {
@@ -74,49 +114,30 @@ void Renderer::renderMap(const Map& map, int mapStartX, int mapStartY, const Ima
             int renderY = (y - mapStartY) * unitSize + mapMoving_offsetY;
 
             switch (tile.getType()) {
-                case Tile::TREE: {
-                    renderCopyImage(tree, renderX, renderY, unitSize, unitSize);
+                case Tile::TREE:
+                    renderTree(renderX, renderY, map, x, y, tree);
                     break;
-                }
-                case Tile::CUTED_TREE: {
-                    renderCopyImage(cuted_tree, renderX, renderY, unitSize, unitSize);
+                case Tile::CUTED_TREE:
+                    renderCutedTree(renderX, renderY, map, x, y, cuted_tree);
                     break;
-                }
-                case Tile::ANIMAL: {
-                    const Animal& animal = map.getAnimalAt(x, y);
-                    int animalRenderX = renderX + (animal.targetX - animal.x) * unitSize * animal.moveProgress / Config::ANIMAL_MOVE_FRAMES;
-                    int animalRenderY = renderY + (animal.targetY - animal.y) * unitSize * animal.moveProgress / Config::ANIMAL_MOVE_FRAMES;
-                    if (animal.img_direction == Entity::LEFT) {
-                        renderCopyImage(animal_left, animalRenderX, animalRenderY, unitSize, unitSize);
-                    } else if (animal.img_direction == Entity::RIGHT) {
-                        renderCopyImage(animal_right, animalRenderX, animalRenderY, unitSize, unitSize);
-                    }
+                case Tile::ANIMAL:
+                    renderAnimal(renderX, renderY, map, x, y, animal_left, animal_right);
                     break;
-                }
-                case Tile::PLAYER: {
-                    renderCopyImage(player_down[0], renderX, renderY, unitSize, unitSize);
+                case Tile::PLAYER:
+                    renderPlayer(renderX, renderY, player_down);
                     break;
-                }
-                case Tile::STORE: {
-                    // 设置渲染透明淡蓝色
-                    SDL_SetRenderDrawColor(m_renderer, 173, 216, 230, 128);
-                    SDL_Rect storeRect = { renderX, renderY, unitSize, unitSize };
-                    SDL_RenderFillRect(m_renderer, &storeRect);
+                case Tile::STORE:
+                    renderStore(renderX, renderY);
                     break;
-                }
                 case Tile::WALL:
-                    break;
                 case Tile::DOOR:
-                    break;
                 case Tile::EMPTY:
-                    break;
                 default:
                     break;
             }
         }
     }
 }
-
 void Renderer::renderStartScreen() {
     SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255); // 设置背景颜色为黑色
     SDL_RenderClear(m_renderer);
