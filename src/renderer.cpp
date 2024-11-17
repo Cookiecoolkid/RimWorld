@@ -87,8 +87,29 @@ void Renderer::renderAnimal(int renderX, int renderY, const Map& map, int x, int
     }
 }
 
-void Renderer::renderPlayer(int renderX, int renderY, const std::array<Image, 4>& player_down) {
-    renderCopyImage(player_down[0], renderX, renderY, Config::MAP_UNIT_SIZE, Config::MAP_UNIT_SIZE);
+void Renderer::renderPlayer(int renderX, int renderY, int x, int y, const Map& map,
+                                                                    const std::array<Image, 4>& player_down,
+                                                                    const std::array<Image, 4>& player_left, 
+                                                                    const std::array<Image, 4>& player_right, 
+                                                                    const std::array<Image, 4>& player_up) {
+    const Player& player = map.getPlayerAt(x, y);
+    int unitSize = Config::MAP_UNIT_SIZE;
+    int playerRenderX = renderX + (player.targetX - player.x) * Config::MAP_UNIT_SIZE * player.moveProgress / Config::MOVE_FRAMES;
+    int playerRenderY = renderY + (player.targetY - player.y) * Config::MAP_UNIT_SIZE * player.moveProgress / Config::MOVE_FRAMES;
+    int moveProgress = player.moveProgress;
+    int direction = player.direction;
+    int oneRound = Config::PLAYER_IMAGE_ONE_ROUND;
+    int framesPerImage = Config::PLAYER_IMAGE_ONE_ROUND / 4;
+    // 根据方向选择不同的图片 且根据 moveProgress 处于 oneRound 的第几个图片
+    if (direction == Entity::DOWN) {
+        renderCopyImage(player_down[(moveProgress % oneRound) / framesPerImage], playerRenderX, playerRenderY, unitSize, unitSize);
+    } else if (direction == Entity::LEFT) {
+        renderCopyImage(player_left[(moveProgress % oneRound) / framesPerImage], playerRenderX, playerRenderY, unitSize, unitSize);
+    } else if (direction == Entity::RIGHT) {
+        renderCopyImage(player_right[(moveProgress % oneRound) / framesPerImage], playerRenderX, playerRenderY, unitSize, unitSize);
+    } else if (direction == Entity::UP) {
+        renderCopyImage(player_up[(moveProgress % oneRound) / framesPerImage], playerRenderX, playerRenderY, unitSize, unitSize);
+    }
 }
 
 void Renderer::renderStore(int renderX, int renderY) {
@@ -162,7 +183,7 @@ void Renderer::renderMap(const Map& map, int mapStartX, int mapStartY, const Ima
                 renderAnimal(renderX, renderY, map, x, y, animal_left, animal_right);
             }
             if (tile.hasType(Tile::PLAYER)) {
-                renderPlayer(renderX, renderY, player_down);
+                renderPlayer(renderX, renderY, x, y, map, player_down, player_left, player_right, player_up);
             }
             if (tile.hasType(Tile::WALL)) {
                 // TODO

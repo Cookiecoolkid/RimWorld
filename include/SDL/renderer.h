@@ -46,7 +46,11 @@ private:
     void renderTree(int renderX, int renderY, const Map& map, int x, int y, const Image& tree);
     void renderCutedTree(int renderX, int renderY, const Map& map, int x, int y, const Image& cuted_tree);
     void renderAnimal(int renderX, int renderY, const Map& map, int x, int y, const Image& animal_left, const Image& animal_right);
-    void renderPlayer(int renderX, int renderY, const std::array<Image, 4>& player_down);
+    void renderPlayer(int renderX, int renderY, int x, int y, const Map& map,
+                                                            const std::array<Image, 4>& player_down,
+                                                            const std::array<Image, 4>& player_left, 
+                                                            const std::array<Image, 4>& player_right, 
+                                                            const std::array<Image, 4>& player_up);              
     void renderStore(int renderX, int renderY);
     void renderStoreArea(const Map& map, int mapStartX, int mapStartY);
 

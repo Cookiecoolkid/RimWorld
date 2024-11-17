@@ -88,6 +88,11 @@ void Map::placeRandomTrees(int count) {
         int x = std::rand() % m_width;
         int y = std::rand() % m_height;
 
+        if (isPositionOccupied(x, y)) {
+            i--;
+            continue;
+        }
+
         addTileType(x, y, Tile::TREE);
     }
 }
@@ -120,6 +125,23 @@ void Map::updateAnimalTile(int index) {
     addTileType(m_animal_entity[index].targetX, m_animal_entity[index].targetY, Tile::ANIMAL);
 }
 
+void Map::tryUpdatePlayerTile(int index) {
+    if (m_player_entity[index].isMoving) {
+        m_player_entity[index].moveProgress++;
+        if (m_player_entity[index].moveProgress >= Config::PLAYER_MOVE_FRAMES) {
+            // 更新 x,y 的同时更新 Tile
+            // 但由于 updatePlayerTile 的实现是根据 x,y 还没有更新的值来更新 Tile 的，因此要先调用 updatePlayerTile
+            updatePlayerTile(index);
+            m_player_entity[index].updatePosition();
+        }
+    }
+}
+
+void Map::updatePlayerTile(int index) {
+    removeTileType(m_player_entity[index].x, m_player_entity[index].y, Tile::PLAYER);
+    addTileType(m_player_entity[index].targetX, m_player_entity[index].targetY, Tile::PLAYER);
+}
+
 
 const Animal& Map::getAnimalAt(int x, int y) const {
     // 这里的 x, y 与 tile 的 x, y 对应
@@ -130,6 +152,17 @@ const Animal& Map::getAnimalAt(int x, int y) const {
     }
     throw std::runtime_error("Animal not found at the given position");
 }
+
+const Player& Map::getPlayerAt(int x, int y) const {
+    // 这里的 x, y 与 tile 的 x, y 对应
+    for (const auto& player : m_player_entity) {
+        if (player.x == x && player.y == y) {
+            return player;
+        }
+    }
+    throw std::runtime_error("Player not found at the given position");
+}
+
 
 bool Map::isPositionOccupied(int x, int y) const {
     Tile tile = getTile(x, y);
@@ -179,14 +212,27 @@ bool Map::isAdjacentTypesReachCount(int x, int y, Tile::Type type, int count) co
     return numStore >= count;
 }
 
+bool Map::hasCutTreeInMap() const {
+    for (int y = 0; y < m_height; ++y) {
+        for (int x = 0; x < m_width; ++x) {
+            if (getTile(x, y).hasType(Tile::CUTED_TREE)) {
+                DEBUG("Found CUTED_TREE at (%d, %d)\n", x, y);
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 // 通用的寻路函数
-std::vector<std::pair<int, int>> Map::findPathToTarget(int startX, int startY, Tile::Type targetType, 
-                                    std::function<bool(int, int)> condition, std::function<void(int, int)> onTargetFound) {
+std::vector<std::pair<int, int>> Map::findPathToTarget(int startX, int startY, Tile::Type targetType) {
     std::queue<std::pair<int, int>> q;
     std::unordered_map<int, std::pair<int, int>> parent;
     std::vector<std::pair<int, int>> directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
     q.push({startX, startY});
     parent[startY * m_width + startX] = {-1, -1};
+
+    DEBUG("Starting BFS from (%d, %d)\n", startX, startY);
 
     while (!q.empty()) {
         auto [x, y] = q.front();
@@ -197,43 +243,53 @@ std::vector<std::pair<int, int>> Map::findPathToTarget(int startX, int startY, T
             int newY = y + dir.second;
 
             if (newX >= 0 && newX < m_width && newY >= 0 && newY < m_height &&
-                condition(newX, newY) && parent.find(newY * m_width + newX) == parent.end()) {
+                parent.find(newY * m_width + newX) == parent.end()) {
+
+                bool isTarget = getTile(newX, newY).hasType(targetType);
+
+                if (isPositionOccupied(newX, newY) && !isTarget) {
+                    // 如果新位置被占据，则跳过该位置
+                    DEBUG("Position (%d, %d) is occupied, skipping\n", newX, newY);
+                    continue;
+                }
+
                 parent[newY * m_width + newX] = {x, y};
                 q.push({newX, newY});
 
-                if (getTile(newX, newY).getType() == targetType) {
+                if (isTarget) {
                     std::vector<std::pair<int, int>> path;
                     for (auto p = std::make_pair(newX, newY); p != std::make_pair(-1, -1); p = parent[p.second * m_width + p.first]) {
                         path.push_back(p);
                     }
                     std::reverse(path.begin(), path.end());
-                    onTargetFound(newX, newY);
+
+                    DEBUG("Path found to (%d, %d)\n", newX, newY);
                     return path;
                 }
             }
         }
     }
 
+    DEBUG("No path found\n");
     return {};
 }
-
 
 void Map::printMapTileType() const {
     for (int y = 0; y < m_height; ++y) {
         for (int x = 0; x < m_width; ++x) {
             Tile tile = getTile(x, y);
             if (tile.hasType(Tile::ANIMAL)) {
-                std::cout << "A ";
+                std::cout << "A";
             } else if (tile.hasType(Tile::PLAYER)) {
-                std::cout << "P ";
+                std::cout << "P";
             } else if (tile.hasType(Tile::TREE)) {
-                std::cout << "T ";
+                std::cout << " ";
             } else if (tile.hasType(Tile::CUTED_TREE)) {
-                std::cout << "C ";
+                std::cout << "C";
             } else if (tile.hasType(Tile::WALL)) {
-                std::cout << "W ";
+                std::cout << "W";
             } else {
-                std::cout << "  ";
+                std::cout << " ";
             }
             
         }

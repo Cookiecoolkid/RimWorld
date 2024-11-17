@@ -61,3 +61,5 @@ const int Config::PLAYER_NUMBERS = 2;
 const int Config::PLAYER_IMAGE_NUMBERS = 16;
 // 移动一次帧数
 const int Config::PLAYER_MOVE_FRAMES = 32;
+const int Config::PLAYER_IMAGE_ROUNDS = 2;
+const int Config::PLAYER_IMAGE_ONE_ROUND = Config::PLAYER_MOVE_FRAMES / Config::PLAYER_IMAGE_ROUNDS;

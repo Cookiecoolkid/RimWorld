@@ -47,18 +47,22 @@ public:
     bool isAdjacentTypesReachCount(int x, int y, Tile::Type type, int count) const;
 
     // Animal & Player
-    Animal m_animal_entity[32];
-    Player m_player_entity[10];
+    Animal m_animal_entity[400];
+    Player m_player_entity[16];
 
     bool canMoveTo(int x, int y);
+    
     void tryUpdateAnimalTile(int index);
     void updateAnimalTile(int index);
+    void tryUpdatePlayerTile(int index);
+    void updatePlayerTile(int index);
+
     bool isPositionOccupied(int x, int y) const;
+    bool hasCutTreeInMap() const;
     const Animal& getAnimalAt(int x, int y) const;
+    const Player& getPlayerAt(int x, int y) const;
     std::vector<std::pair<int, int>> findPathToTarget(int startX, int startY, 
-                                                    Tile::Type targetType, 
-                                                    std::function<bool(int, int)> condition, 
-                                                    std::function<void(int, int)> onTargetFound);
+                                                    Tile::Type targetType);
 
     // DEBUG
     void printMapTileType() const;

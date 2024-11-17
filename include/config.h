@@ -74,6 +74,8 @@ public:
     static const int PLAYER_IMAGE_NUMBERS;
     // 移动一次所需帧数
     static const int PLAYER_MOVE_FRAMES;
+    static const int PLAYER_IMAGE_ROUNDS;
+    static const int PLAYER_IMAGE_ONE_ROUND;
 };
 
 #endif // CONFIG_H

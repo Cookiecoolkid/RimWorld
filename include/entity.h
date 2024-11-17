@@ -16,8 +16,17 @@ public:
     };
 
     virtual ~Entity() = default;
+    int x = 0;
+    int y = 0;
+
+    int targetX = x;
+    int targetY = y;
+    int moveProgress = 0;
+    int isMoving = false;
     Direction direction;
-    Direction img_direction;
+
+    void startMove(int new_x, int new_y);
+    void updatePosition();
 };
 
 class Animal : public Entity {
@@ -26,28 +35,22 @@ public:
     ~Animal() = default;
     std::pair<int, int> action();
     
-    void startMove(int new_x, int new_y);
-    void updatePosition();
-    
-    int x = 0;
-    int y = 0;
-
-    int targetX = x;
-    int targetY = y;
-    int moveProgress = 0;
-    int isMoving = false;
+    Direction img_direction;
 };
+
 
 class Player : public Entity {
 public:
     Player();
     ~Player() = default;
 
-    int x = 0;
-    int y = 0;
     bool isFree = true; // 表示当前是否在执行一个动作
     std::vector<std::pair<int, int>> path; // 存储寻路路径
-    int moveProgress = 0; // 移动进度
+    void updatePlayerDirection(int nextX, int nextY);
+
+    void action_cut(int x, int y);
+    void action_store(int x, int y);
+    void action_pickup(int x, int y);
 };
 
 #endif // ENTITY_H
