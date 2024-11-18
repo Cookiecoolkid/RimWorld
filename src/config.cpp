@@ -67,3 +67,6 @@ const int Config::PLAYER_IMAGE_ONE_ROUND = Config::PLAYER_MOVE_FRAMES / Config::
 
 // 砍树所需帧数
 const int Config::CUT_TREE_FRAMES = 64;
+
+// 砍树掉落的木头数量
+const int Config::WOOD_DROP_COUNT = 55;

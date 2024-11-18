@@ -44,11 +44,14 @@ public:
     Player();
     ~Player() = default;
 
+    int optionTargetX = 0;
+    int optionTargetY = 0;
     bool isFree = true; // 表示当前是否在执行一个动作
     bool isMoving = false; // 表示当前是否在移动
     bool isCutting = false; // 表示当前是否在砍树
     bool isStoring = false; // 表示当前是否在存储
     bool isPickingUp = false; // 表示当前是否在捡东西
+    int cutProgress = 0; // 砍树进度
     std::vector<std::pair<int, int>> path; // 存储寻路路径
     void updatePlayerDirection(int nextX, int nextY);
 

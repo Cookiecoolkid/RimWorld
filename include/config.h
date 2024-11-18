@@ -81,6 +81,9 @@ public:
 
     // 砍树所需帧数
     static const int CUT_TREE_FRAMES;
+
+    // 砍树掉落的木头数量
+    static const int WOOD_DROP_COUNT;
 };
 
 #endif // CONFIG_H

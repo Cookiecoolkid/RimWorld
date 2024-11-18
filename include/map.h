@@ -34,8 +34,12 @@ public:
     void removeType(Type type);
     bool hasType(Type type) const;
 
+    void setWoodCount(int count);
+    int getWoodCount() const;
+
 private:
     int m_type; // 使用位掩码来表示不同的 Tile 类型
+    int m_wood_count = 0;
 };
 
 
@@ -64,6 +68,8 @@ public:
 
     bool isPositionOccupied(int x, int y) const;
     bool hasReachableCutTreeInMap() const;
+    std::pair<int, int> getAdjacentNonTargetedPosition(int x, int y, Tile::Type targetType);
+
     const Animal& getAnimalAt(int x, int y) const;
     const Player& getPlayerAt(int x, int y) const;
     std::vector<std::pair<int, int>> findPathToTarget(int startX, int startY, 
