@@ -24,6 +24,7 @@ public:
         STORE = 1 << 6,
         OCCUPIED = 1 << 7,
         TARGETED = 1 << 8,
+        WOOD = 1 << 9,
     };
 
     Tile(Type type = EMPTY);
@@ -55,8 +56,11 @@ public:
     
     void tryUpdateAnimalTile(int index);
     void updateAnimalTile(int index);
-    void tryUpdatePlayerTile(int index);
     void updatePlayerTile(int index);
+    Player::Action findPlayerAction(int index);
+    void startPlayerAction(int index, Player::Action action);
+    void tryProcessPlayerAction(int index);
+    void playerActionReset(int index);
 
     bool isPositionOccupied(int x, int y) const;
     bool hasReachableCutTreeInMap() const;

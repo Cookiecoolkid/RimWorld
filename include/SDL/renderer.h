@@ -28,7 +28,7 @@ public:
     SDL_Renderer* getSDLRenderer() const;
 
     void renderMap(const Map& map, int mapStartX, int mapStartY, const Image& background,
-        const Image& tree, const Image& cuted_tree,
+        const Image& tree, const Image& cuted_tree, const Image& wood,
         const Image& animal_left, const Image& animal_right, std::array<Image, 4>& player_down,
         std::array<Image, 4>& player_left, std::array<Image, 4>& player_right, 
         std::array<Image, 4>& player_up);
@@ -45,8 +45,9 @@ private:
 
     void renderTree(int renderX, int renderY, const Map& map, int x, int y, const Image& tree);
     void renderCutedTree(int renderX, int renderY, const Map& map, int x, int y, const Image& cuted_tree);
+    void renderWood(int renderX, int renderY, const Map& map, int x, int y, const Image& wood);
     void renderAnimal(int renderX, int renderY, const Map& map, int x, int y, const Image& animal_left, const Image& animal_right);
-    void renderPlayer(int renderX, int renderY, int x, int y, const Map& map,
+    void renderPlayer(int renderX, int renderY, const Map& map, int x, int y, 
                                                             const std::array<Image, 4>& player_down,
                                                             const std::array<Image, 4>& player_left, 
                                                             const std::array<Image, 4>& player_right, 

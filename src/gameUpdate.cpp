@@ -45,13 +45,10 @@ void Game::movingMap() {
     }
 }
 
-void Game::updateGameState() {
-    // 移动地图
-    movingMap();
-    // 更新动物状态
+void Game::updateAnimalState() {
     for (int i = 0; i < Config::ANIMAL_NUMBERS; ++i) {
         Animal& animal = m_map.m_animal_entity[i];
-        if (!animal.isMoving) {
+        if (!animal.isStepping) {
             // 随机选择一个方向 但可能不移动
             std::pair<int, int> move = animal.action();
 
@@ -59,66 +56,33 @@ void Game::updateGameState() {
 
             if (m_map.canMoveTo(move.first, move.second)) {
                 m_map.addTileType(move.first, move.second, Tile::OCCUPIED);
-                animal.startMove(move.first, move.second);
+                animal.startStep(move.first, move.second);
             }
         }
         // 更新动物的 x,y 和 Tile 要保持同步
         m_map.tryUpdateAnimalTile(i);
     }
+}
 
-
-    // TIP 设置 FREE 为 true 的同时一定要取消 TARGETED 标记 否则会影响其他 Player 的寻路
+void Game::updatePlayerState() {
     for (int i = 0; i < Config::PLAYER_NUMBERS; ++i) {
         Player& player = m_map.m_player_entity[i];
 
-        // 如果当前没有执行动作 且 遍历地图发现有 CUTED_TREE 且 CUTED_TREE 周围必然有没有被占据的位置
-        if (player.isFree && m_map.hasReachableCutTreeInMap()) {
-            // 此处计算量较大，不能每次都计算
-            player.path = m_map.findPathToTarget(player.x, player.y, Tile::CUTED_TREE);
-            
-            // 寻路可能会失败
-            if (player.path.empty()) {
-                continue;
-            }
-
-            player.isFree = false;
-            // 找到 起点->终点 的路径之后取出终点 加上 TARGETED 标记
-            auto [targetX, targetY] = player.path.back();
-            m_map.addTileType(targetX, targetY, Tile::TARGETED);
-
-            // TODO 暂时去除起点
-            player.path.erase(player.path.begin());
+        if (player.isFree) {
+            Player::Action nextAction = m_map.findPlayerAction(i);
+            m_map.startPlayerAction(i, nextAction);
+        } else {
+            // isFree = false 必然在执行某个动作, 推进玩家的动作
+            m_map.tryProcessPlayerAction(i);
         }
-
-        // 移动玩家
-        if (!player.isMoving && !player.path.empty()) {
-            auto [nextX, nextY] = player.path.front();
-
-            if (player.path.size() == 1) {
-                // 如果只剩下一个点，说明到达终点
-                player.path.clear();
-                // TODO 进行下一个动作
-
-                continue;
-            }
-
-            // 检查下一步是否会与其他玩家或动物发生碰撞
-            if (!m_map.isPositionOccupied(nextX, nextY)) {
-                m_map.addTileType(nextX, nextY, Tile::OCCUPIED);
-                player.path.erase(player.path.begin());
-                player.startMove(nextX, nextY);
-                player.updatePlayerDirection(nextX, nextY);
-            } else {
-                // 如果下一步会发生碰撞，则重新计算路径或暂停移动 同时需要删除 TARGETED 标记
-                auto [targetX, targetY] = player.path.back();
-                m_map.removeTileType(targetX, targetY, Tile::TARGETED);
-
-                player.path.clear();
-                player.isFree = true;
-            }
-        }
-
-        // 更新玩家的 x,y 和 Tile 要保持同步
-        m_map.tryUpdatePlayerTile(i);
     }
+}
+
+void Game::updateGameState() {
+    // 移动地图
+    movingMap();
+    // 更新动物状态
+    updateAnimalState();
+    // 更新玩家状态
+    updatePlayerState();
 }

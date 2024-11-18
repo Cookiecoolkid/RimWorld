@@ -86,6 +86,11 @@ bool Game::init_load_image() {
         return false;
     }
 
+    m_wood = Image(Config::IMAGE_WOOD_PATH);
+    if (!m_wood.load(m_renderer.getSDLRenderer())) {
+        return false;
+    }
+
     m_animal_left = Image(m_animalPath[0]);
     if (!m_animal_left.load(m_renderer.getSDLRenderer())) {
         return false;

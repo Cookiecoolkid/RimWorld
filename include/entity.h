@@ -21,11 +21,11 @@ public:
 
     int targetX = x;
     int targetY = y;
-    int moveProgress = 0;
-    int isMoving = false;
+    int stepProgress = 0;
+    int isStepping = false;
     Direction direction;
 
-    void startMove(int new_x, int new_y);
+    void startStep(int new_x, int new_y);
     void updatePosition();
 };
 
@@ -45,12 +45,20 @@ public:
     ~Player() = default;
 
     bool isFree = true; // 表示当前是否在执行一个动作
+    bool isMoving = false; // 表示当前是否在移动
+    bool isCutting = false; // 表示当前是否在砍树
+    bool isStoring = false; // 表示当前是否在存储
+    bool isPickingUp = false; // 表示当前是否在捡东西
     std::vector<std::pair<int, int>> path; // 存储寻路路径
     void updatePlayerDirection(int nextX, int nextY);
 
-    void action_cut(int x, int y);
-    void action_store(int x, int y);
-    void action_pickup(int x, int y);
+    enum Action {
+        NONE,
+        MOVE,
+        CUT,
+        STORE,
+        PICKUP
+    };
 };
 
 #endif // ENTITY_H

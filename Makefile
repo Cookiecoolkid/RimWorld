@@ -1,6 +1,6 @@
 CXX = g++
 
-CXXFLAGS = -std=c++17 -Iinclude -Iinclude/SDL -Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -fstack-protector-all
+CXXFLAGS = -std=c++17 -Iinclude -Iinclude/SDL -g -Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -fstack-protector-all
 
 SDL2_CFLAGS = $(shell sdl2-config --cflags)
 SDL2_LDFLAGS = $(shell sdl2-config --libs) -lSDL2_image -lSDL2_ttf

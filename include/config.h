@@ -3,6 +3,7 @@
 
 #include <string>
 #include <cstdio>
+#include <cassert>
 
 #define DEBUG_MODE
 
@@ -36,6 +37,7 @@ public:
     static const std::string IMAGE_BACKGROUND_PATH;
     static const std::string IMAGE_TREE_PATH;
     static const std::string IMAGE_CUTED_TREE_PATH;
+    static const std::string IMAGE_WOOD_PATH;
 
     // 图片大小
     static const int IMAGE_BACKGROUND_WIDTH;

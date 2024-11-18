@@ -50,8 +50,8 @@ Map::Map(int width, int height) : m_width(width), m_height(height) {
         m_animal_entity[i].y = y;
         m_animal_entity[i].targetX = x;
         m_animal_entity[i].targetY = y;
-        m_animal_entity[i].moveProgress = 0;
-        m_animal_entity[i].isMoving = false;
+        m_animal_entity[i].stepProgress = 0;
+        m_animal_entity[i].isStepping = false;
         m_animal_entity[i].direction = Entity::LEFT;
         m_animal_entity[i].img_direction = Entity::LEFT;
 
@@ -68,6 +68,9 @@ Map::Map(int width, int height) : m_width(width), m_height(height) {
         m_player_entity[i].x = x;
         m_player_entity[i].y = y;
         m_player_entity[i].direction = Entity::DOWN;
+        m_player_entity[i].isFree = true;
+        m_player_entity[i].stepProgress = 0;
+        m_player_entity[i].isStepping = false;
 
         addTileType(m_player_entity[i].x, m_player_entity[i].y, Tile::PLAYER);
     }
@@ -108,9 +111,9 @@ bool Map::canMoveTo(int x, int y) {
 
 // 这里需要注意 Tile 是和 Animal 的 x, y 属性对应，因此只有更新 x,y 的时候才可以更新 Tile 以保持同步
 void Map::tryUpdateAnimalTile(int index) {
-    if (m_animal_entity[index].isMoving) {
-        m_animal_entity[index].moveProgress++;
-        if (m_animal_entity[index].moveProgress >= Config::ANIMAL_MOVE_FRAMES) {
+    if (m_animal_entity[index].isStepping) {
+        m_animal_entity[index].stepProgress++;
+        if (m_animal_entity[index].stepProgress >= Config::ANIMAL_MOVE_FRAMES) {
             // 更新 x,y 的同时更新 Tile
             // 但由于 updateAnimalTile 的实现是根据 x,y 还没有更新的值来更新 Tile 的，因此要先调用 updateAnimalTile
             updateAnimalTile(index);
@@ -124,17 +127,6 @@ void Map::updateAnimalTile(int index) {
     addTileType(m_animal_entity[index].targetX, m_animal_entity[index].targetY, Tile::ANIMAL);
 }
 
-void Map::tryUpdatePlayerTile(int index) {
-    if (m_player_entity[index].isMoving) {
-        m_player_entity[index].moveProgress++;
-        if (m_player_entity[index].moveProgress >= Config::PLAYER_MOVE_FRAMES) {
-            // 更新 x,y 的同时更新 Tile
-            // 但由于 updatePlayerTile 的实现是根据 x,y 还没有更新的值来更新 Tile 的，因此要先调用 updatePlayerTile
-            updatePlayerTile(index);
-            m_player_entity[index].updatePosition();
-        }
-    }
-}
 
 void Map::updatePlayerTile(int index) {
     removeTileType(m_player_entity[index].x, m_player_entity[index].y, Tile::PLAYER);
@@ -164,13 +156,6 @@ const Player& Map::getPlayerAt(int x, int y) const {
 
 
 bool Map::isPositionOccupied(int x, int y) const {
-    // Tile tile = getTile(x, y);
-    // if (tile.hasType(Tile::ANIMAL) || tile.hasType(Tile::PLAYER) || tile.hasType(Tile::TREE) ||
-    //     tile.hasType(Tile::CUTED_TREE) || tile.hasType(Tile::WALL)) {
-    //     return true;
-    // }
-    // return false;
-
     Tile tile = getTile(x, y);
     return tile.hasType(Tile::OCCUPIED);
 }
@@ -227,6 +212,104 @@ bool Map::hasReachableCutTreeInMap() const {
         }
     }
     return false;
+}
+
+void Map::playerActionReset(int index) {
+    Player& player = m_player_entity[index];
+    player.isFree = true;
+    player.isMoving = false;
+    player.isCutting = false;
+    player.isStoring = false;
+    player.isPickingUp = false;
+    player.path.clear();
+}
+
+Player::Action Map::findPlayerAction(int index) {
+    // TODO
+    if (hasReachableCutTreeInMap()) {
+        return Player::Action::MOVE;
+    }
+    return Player::Action::NONE;
+}
+
+void Map::startPlayerAction(int index, Player::Action action) {
+    Player& player = m_player_entity[index];
+    switch (action) {
+        case Player::Action::MOVE: {
+            player.path = findPathToTarget(player.x, player.y, Tile::CUTED_TREE);
+
+            if (!player.path.empty()) {
+                player.isFree = false;
+                player.isMoving = true;
+                auto [targetX, targetY] = player.path.back();
+                addTileType(targetX, targetY, Tile::TARGETED);
+                player.path.erase(player.path.begin());
+            } else {
+                // STILL FREE, DO NOTHING
+            }
+            break;
+        }
+        case Player::Action::CUT:
+            // TODO
+            break;
+        case Player::Action::STORE:
+            // TODO
+            break;
+        case Player::Action::PICKUP:
+            // TODO
+            break;
+        default:
+            break;
+    }
+}
+// TIP 设置 FREE 为 true 的同时一定要取消 TARGETED 标记 否则会影响其他 Player 的寻路
+void Map::tryProcessPlayerAction(int index) {
+    Player& player = m_player_entity[index];
+
+    if (player.isMoving) {
+        if (player.isStepping) {
+            player.stepProgress++;
+            if (player.stepProgress >= Config::PLAYER_MOVE_FRAMES) {
+                // 更新 x,y 的同时更新 Tile
+                // 但由于 updatePlayerTile 的实现是根据 x,y 还没有更新的值来更新 Tile 的，因此要先调用 updatePlayerTile
+                updatePlayerTile(index);
+                player.updatePosition();
+            }
+        } else {
+            assert(!player.path.empty());
+
+            auto [nextX, nextY] = player.path.front();
+            if (player.path.size() == 1) {
+                // 如果只剩下一个点，说明到达终点
+                auto [targetX, targetY] = player.path.back();
+                removeTileType(targetX, targetY, Tile::TARGETED);
+                
+                playerActionReset(index);
+                return;
+            }
+
+            // 检查下一步是否会与其他玩家或动物发生碰撞
+            if (!isPositionOccupied(nextX, nextY)) {
+                addTileType(nextX, nextY, Tile::OCCUPIED);
+                player.path.erase(player.path.begin());
+                player.startStep(nextX, nextY);
+                player.updatePlayerDirection(nextX, nextY);
+            } else {
+                // 如果下一步会发生碰撞，则重新计算路径或暂停移动 同时需要删除 TARGETED 标记
+                assert(!player.path.empty());
+                auto [targetX, targetY] = player.path.back();
+                removeTileType(targetX, targetY, Tile::TARGETED);
+
+                playerActionReset(index);
+            }
+        }
+    } else if (player.isCutting) {
+        // TODO
+    } else if (player.isStoring) {
+        // TODO
+    } else if (player.isPickingUp) {
+        // TODO
+    }
 }
 
 // 通用的寻路函数

@@ -35,6 +35,8 @@ public:
     bool init_load_image();
     bool init_image_path();
     void updateGameState();
+    void updateAnimalState();
+    void updatePlayerState();
 
 private:
     // Basic Game Components 
@@ -50,6 +52,7 @@ private:
     Image m_background;
     Image m_tree;
     Image m_cuted_tree;
+    Image m_wood;
     std::string m_animalPath[2];
     Image m_animal_left;
     Image m_animal_right;

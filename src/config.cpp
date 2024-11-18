@@ -23,6 +23,7 @@ const int Config::INIT_TREE_COUNT = 128;
 const std::string Config::IMAGE_BACKGROUND_PATH = "image/out_desert.png";
 const std::string Config::IMAGE_TREE_PATH = "image/tree.png";
 const std::string Config::IMAGE_CUTED_TREE_PATH = "image/cuted_tree.png";
+const std::string Config::IMAGE_WOOD_PATH = "image/wood.png";
 
 // 图片大小
 const int Config::IMAGE_BACKGROUND_WIDTH = 5120;
