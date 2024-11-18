@@ -21,13 +21,13 @@ public:
         ANIMAL = 1 << 3,
         PLAYER = 1 << 4,
         CUTED_TREE = 1 << 5,
-        STORE = 1 << 6
+        STORE = 1 << 6,
+        OCCUPIED = 1 << 7,
     };
 
     Tile(Type type = EMPTY);
 
     Type getType() const;
-    void setType(Type type);
     void addType(Type type);
     void removeType(Type type);
     bool hasType(Type type) const;
@@ -58,7 +58,7 @@ public:
     void updatePlayerTile(int index);
 
     bool isPositionOccupied(int x, int y) const;
-    bool hasCutTreeInMap() const;
+    bool hasReachableCutTreeInMap() const;
     const Animal& getAnimalAt(int x, int y) const;
     const Player& getPlayerAt(int x, int y) const;
     std::vector<std::pair<int, int>> findPathToTarget(int startX, int startY, 

@@ -12,16 +12,18 @@ Tile::Type Tile::getType() const {
     return static_cast<Type>(m_type);
 }
 
-void Tile::setType(Type type) {
-    m_type = type;
-}
-
 void Tile::addType(Type type) {
     m_type |= type;
+    if (type & (TREE | WALL | ANIMAL | PLAYER | CUTED_TREE)) {
+        m_type |= OCCUPIED;
+    }
 }
 
 void Tile::removeType(Type type) {
     m_type &= ~type;
+    if (!(m_type & (TREE | WALL | ANIMAL | PLAYER | CUTED_TREE))) {
+        m_type &= ~OCCUPIED;
+    }
 }
 
 bool Tile::hasType(Type type) const {
@@ -101,10 +103,7 @@ bool Map::canMoveTo(int x, int y) {
     if (x < 0 || x >= Config::MAP_WIDTH || y < 0 || y >= Config::MAP_HEIGHT) {
         return false;
     }
-
-    Tile::Type type = getTile(x, y).getType();
-
-    return type == Tile::EMPTY || type == Tile::STORE;
+    return !isPositionOccupied(x, y);
 }
 
 // 这里需要注意 Tile 是和 Animal 的 x, y 属性对应，因此只有更新 x,y 的时候才可以更新 Tile 以保持同步
@@ -165,12 +164,15 @@ const Player& Map::getPlayerAt(int x, int y) const {
 
 
 bool Map::isPositionOccupied(int x, int y) const {
+    // Tile tile = getTile(x, y);
+    // if (tile.hasType(Tile::ANIMAL) || tile.hasType(Tile::PLAYER) || tile.hasType(Tile::TREE) ||
+    //     tile.hasType(Tile::CUTED_TREE) || tile.hasType(Tile::WALL)) {
+    //     return true;
+    // }
+    // return false;
+
     Tile tile = getTile(x, y);
-    if (tile.hasType(Tile::ANIMAL) || tile.hasType(Tile::PLAYER) || tile.hasType(Tile::TREE) ||
-        tile.hasType(Tile::CUTED_TREE) || tile.hasType(Tile::WALL)) {
-        return true;
-    }
-    return false;
+    return tile.hasType(Tile::OCCUPIED);
 }
 
 void Map::setStoreArea(int startX, int startY, int endX, int endY) {
@@ -212,12 +214,14 @@ bool Map::isAdjacentTypesReachCount(int x, int y, Tile::Type type, int count) co
     return numStore >= count;
 }
 
-bool Map::hasCutTreeInMap() const {
+bool Map::hasReachableCutTreeInMap() const {
     for (int y = 0; y < m_height; ++y) {
         for (int x = 0; x < m_width; ++x) {
             if (getTile(x, y).hasType(Tile::CUTED_TREE)) {
-                DEBUG("Found CUTED_TREE at (%d, %d)\n", x, y);
-                return true;
+                if (!isAdjacentTypesReachCount(x, y, Tile::OCCUPIED, 4)) {
+                    DEBUG("Found CUTED_TREE at (%d, %d)\n", x, y);
+                    return true;
+                }
             }
         }
     }

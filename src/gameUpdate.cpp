@@ -58,6 +58,7 @@ void Game::updateGameState() {
             if (move.first == -1 && move.second == -1) continue;
 
             if (m_map.canMoveTo(move.first, move.second)) {
+                m_map.addTileType(move.first, move.second, Tile::OCCUPIED);
                 animal.startMove(move.first, move.second);
             }
         }
@@ -68,21 +69,23 @@ void Game::updateGameState() {
     for (int i = 0; i < Config::PLAYER_NUMBERS; ++i) {
         Player& player = m_map.m_player_entity[i];
 
-        // 如果当前没有执行动作 且 遍历地图发现有 CUTED_TREE
-        if (player.isFree && m_map.hasCutTreeInMap()) {
+        // 如果当前没有执行动作 且 遍历地图发现有 CUTED_TREE 且 CUTED_TREE 周围必然有没有被占据的位置
+        if (player.isFree && m_map.hasReachableCutTreeInMap()) {
             player.isFree = false;
+            // 此处计算量较大，不能每次都计算
             player.path = m_map.findPathToTarget(player.x, player.y, Tile::CUTED_TREE);
+
             player.path.erase(player.path.begin());
             player.path.pop_back(); // 去掉终点
         }
 
-        // 移动
-        // FIXME 使用了 animal 的 isMoving 来判断是否可以移动 可能是一个TRICK 
-        if (!player.isMoving && !player.path.empty() && !m_map.m_animal_entity[0].isMoving) {
+        // 移动玩家
+        if (!player.isMoving && !player.path.empty()) {
             auto [nextX, nextY] = player.path.front();
 
             // 检查下一步是否会与其他玩家或动物发生碰撞
             if (!m_map.isPositionOccupied(nextX, nextY)) {
+                m_map.addTileType(nextX, nextY, Tile::OCCUPIED);
                 player.path.erase(player.path.begin());
                 player.startMove(nextX, nextY);
                 player.updatePlayerDirection(nextX, nextY);
