@@ -36,7 +36,7 @@ void Game::run() {
     registerCallbacks();
 
     while (m_isRunning) {
-        // DEBUG 地图TILE类型
+        // DEBUG 地图TILE类型 打开此打印的时候 渲染会很卡掉帧
         // m_map.printMapTileType();
         
         // 定时器计算时间

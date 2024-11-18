@@ -66,22 +66,41 @@ void Game::updateGameState() {
         m_map.tryUpdateAnimalTile(i);
     }
 
+
+    // TIP 设置 FREE 为 true 的同时一定要取消 TARGETED 标记 否则会影响其他 Player 的寻路
     for (int i = 0; i < Config::PLAYER_NUMBERS; ++i) {
         Player& player = m_map.m_player_entity[i];
 
         // 如果当前没有执行动作 且 遍历地图发现有 CUTED_TREE 且 CUTED_TREE 周围必然有没有被占据的位置
         if (player.isFree && m_map.hasReachableCutTreeInMap()) {
-            player.isFree = false;
             // 此处计算量较大，不能每次都计算
             player.path = m_map.findPathToTarget(player.x, player.y, Tile::CUTED_TREE);
+            
+            // 寻路可能会失败
+            if (player.path.empty()) {
+                continue;
+            }
 
+            player.isFree = false;
+            // 找到 起点->终点 的路径之后取出终点 加上 TARGETED 标记
+            auto [targetX, targetY] = player.path.back();
+            m_map.addTileType(targetX, targetY, Tile::TARGETED);
+
+            // TODO 暂时去除起点
             player.path.erase(player.path.begin());
-            player.path.pop_back(); // 去掉终点
         }
 
         // 移动玩家
         if (!player.isMoving && !player.path.empty()) {
             auto [nextX, nextY] = player.path.front();
+
+            if (player.path.size() == 1) {
+                // 如果只剩下一个点，说明到达终点
+                player.path.clear();
+                // TODO 进行下一个动作
+
+                continue;
+            }
 
             // 检查下一步是否会与其他玩家或动物发生碰撞
             if (!m_map.isPositionOccupied(nextX, nextY)) {
@@ -90,8 +109,10 @@ void Game::updateGameState() {
                 player.startMove(nextX, nextY);
                 player.updatePlayerDirection(nextX, nextY);
             } else {
-                // 如果下一步会发生碰撞，则重新计算路径或暂停移动
-                DEBUG("Player %d collision detected at %d, %d\n", i, nextX, nextY);
+                // 如果下一步会发生碰撞，则重新计算路径或暂停移动 同时需要删除 TARGETED 标记
+                auto [targetX, targetY] = player.path.back();
+                m_map.removeTileType(targetX, targetY, Tile::TARGETED);
+
                 player.path.clear();
                 player.isFree = true;
             }

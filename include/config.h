@@ -76,6 +76,9 @@ public:
     static const int PLAYER_MOVE_FRAMES;
     static const int PLAYER_IMAGE_ROUNDS;
     static const int PLAYER_IMAGE_ONE_ROUND;
+
+    // 砍树所需帧数
+    static const int CUT_TREE_FRAMES;
 };
 
 #endif // CONFIG_H

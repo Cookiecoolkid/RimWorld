@@ -23,6 +23,7 @@ public:
         CUTED_TREE = 1 << 5,
         STORE = 1 << 6,
         OCCUPIED = 1 << 7,
+        TARGETED = 1 << 8,
     };
 
     Tile(Type type = EMPTY);

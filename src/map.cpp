@@ -217,7 +217,8 @@ bool Map::isAdjacentTypesReachCount(int x, int y, Tile::Type type, int count) co
 bool Map::hasReachableCutTreeInMap() const {
     for (int y = 0; y < m_height; ++y) {
         for (int x = 0; x < m_width; ++x) {
-            if (getTile(x, y).hasType(Tile::CUTED_TREE)) {
+            Tile tile = getTile(x, y);
+            if (tile.hasType(Tile::CUTED_TREE) && !tile.hasType(Tile::TARGETED)) {
                 if (!isAdjacentTypesReachCount(x, y, Tile::OCCUPIED, 4)) {
                     DEBUG("Found CUTED_TREE at (%d, %d)\n", x, y);
                     return true;
@@ -236,8 +237,6 @@ std::vector<std::pair<int, int>> Map::findPathToTarget(int startX, int startY, T
     q.push({startX, startY});
     parent[startY * m_width + startX] = {-1, -1};
 
-    DEBUG("Starting BFS from (%d, %d)\n", startX, startY);
-
     while (!q.empty()) {
         auto [x, y] = q.front();
         q.pop();
@@ -249,11 +248,11 @@ std::vector<std::pair<int, int>> Map::findPathToTarget(int startX, int startY, T
             if (newX >= 0 && newX < m_width && newY >= 0 && newY < m_height &&
                 parent.find(newY * m_width + newX) == parent.end()) {
 
-                bool isTarget = getTile(newX, newY).hasType(targetType);
+                bool isTarget = getTile(newX, newY).hasType(targetType) && 
+                                !getTile(newX, newY).hasType(Tile::TARGETED);
 
                 if (isPositionOccupied(newX, newY) && !isTarget) {
                     // 如果新位置被占据，则跳过该位置
-                    DEBUG("Position (%d, %d) is occupied, skipping\n", newX, newY);
                     continue;
                 }
 
@@ -283,15 +282,17 @@ void Map::printMapTileType() const {
         for (int x = 0; x < m_width; ++x) {
             Tile tile = getTile(x, y);
             if (tile.hasType(Tile::ANIMAL)) {
-                std::cout << "A";
+                std::cout << " ";
             } else if (tile.hasType(Tile::PLAYER)) {
                 std::cout << "P";
-            } else if (tile.hasType(Tile::TREE)) {
+            } else if (tile.hasType(Tile::TARGETED)) {
+                std::cout << "T";
+            }else if (tile.hasType(Tile::TREE)) {
                 std::cout << " ";
             } else if (tile.hasType(Tile::CUTED_TREE)) {
-                std::cout << "C";
+                std::cout << " ";
             } else if (tile.hasType(Tile::WALL)) {
-                std::cout << "W";
+                std::cout << " ";
             } else {
                 std::cout << " ";
             }
