@@ -38,6 +38,13 @@ void Tile::setWoodCount(int count) {
     m_wood_count = count;
 }
 
+void Tile::decreaseWoodCount(int amount) {
+    m_wood_count -= amount;
+    if (m_wood_count < 0) {
+        m_wood_count = 0;
+    }
+}
+
 
 Map::Map(int width, int height) : m_width(width), m_height(height) {
     srand(time(nullptr));
@@ -195,7 +202,7 @@ const Player& Map::getPlayerAt(int x, int y) const {
     throw std::runtime_error("Player not found at the given position");
 }
 
-void Map::playerActionReset(int index) {
+void Map::playerActionReset(int index, int targetX, int targetY) {
     Player& player = m_player_entity[index];
     player.isFree = true;
     player.isMoving = false;
@@ -203,6 +210,10 @@ void Map::playerActionReset(int index) {
     player.isStoring = false;
     player.isPickingUp = false;
     player.path.clear();
+
+    if (targetX != -1 && targetY != -1) {
+        removeTileType(targetX, targetY, Tile::TARGETED);
+    }
 }
 
 bool Map::hasReachableCutTreeInMap() const {

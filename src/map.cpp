@@ -33,6 +33,10 @@ void Map::updatePlayerTile(int index) {
 Player::Action Map::findPlayerAction(int index) {
     // TODO
     Player& player = m_player_entity[index];
+    if (isAdjacentTypesReachCount(player.x, player.y, Tile::WOOD, 1) && 
+        player.carryingWood < Config::PLAYER_MAX_CAPACITY) {
+        return Player::Action::PICKUP;
+    }
     if (isAdjacentTypesReachCount(player.x, player.y, Tile::CUTED_TREE, 1)) {
         return Player::Action::CUT;
     }
@@ -69,16 +73,28 @@ void Map::startPlayerAction(int index, Player::Action action) {
                 player.optionTargetY = optionTarget.second;
                 addTileType(optionTarget.first, optionTarget.second, Tile::TARGETED);
             } else {
-                playerActionReset(index);
+                playerActionReset(index, optionTarget.first, optionTarget.second);
             }
             break;
         }
-        case Player::Action::STORE:
+        case Player::Action::STORE: {
             // TODO
             break;
-        case Player::Action::PICKUP:
-            // TODO
+        }
+        case Player::Action::PICKUP: {
+            player.isFree = false;
+            player.isPickingUp = true;
+            std::pair<int, int> optionTarget = getAdjacentNonTargetedPosition(player.x, player.y, Tile::WOOD);
+            if (optionTarget.first != -1 && optionTarget.second != -1) {
+                player.optionTargetX = optionTarget.first;
+                player.optionTargetY = optionTarget.second;
+                DEBUG("OK Plyaer[%d] Start PICKUP\n", index);
+                addTileType(optionTarget.first, optionTarget.second, Tile::TARGETED);
+            } else {
+                playerActionReset(index, optionTarget.first, optionTarget.second);
+            }
             break;
+        }
         default:
             break;
     }
@@ -103,9 +119,8 @@ void Map::tryProcessPlayerAction(int index) {
             if (player.path.size() == 1) {
                 // 如果只剩下一个点，说明到达终点
                 auto [targetX, targetY] = player.path.back();
-                removeTileType(targetX, targetY, Tile::TARGETED);
-                
-                playerActionReset(index);
+                // removeTileType(targetX, targetY, Tile::TARGETED); // 此处去除 TARGET 由 ActionReset 负责
+                playerActionReset(index, targetX, targetY);
                 return;
             }
 
@@ -119,27 +134,44 @@ void Map::tryProcessPlayerAction(int index) {
                 // 如果下一步会发生碰撞，则重新计算路径或暂停移动 同时需要删除 TARGETED 标记
                 assert(!player.path.empty());
                 auto [targetX, targetY] = player.path.back();
-                removeTileType(targetX, targetY, Tile::TARGETED);
-
-                playerActionReset(index);
+                
+                // 此处去除 TARGET 由 ActionReset 负责
+                playerActionReset(index, targetX, targetY);
             }
         }
     } else if (player.isCutting) {
         player.cutProgress++;
         if (player.cutProgress >= Config::CUT_TREE_FRAMES) {
-            Tile& tile = m_tiles[player.optionTargetX][player.optionTargetY];
+            int optionTargetX = player.optionTargetX;
+            int optionTargetY = player.optionTargetY;
+            Tile& tile = m_tiles[optionTargetX][optionTargetY];
             assert(tile.hasType(Tile::CUTED_TREE));
 
             tile.removeType(Tile::CUTED_TREE);
             tile.addType(Tile::WOOD);
             tile.setWoodCount(Config::WOOD_DROP_COUNT);
-        
-            playerActionReset(index);
+
+            // 此处去除 TARGET 由 ActionReset 负责
+            playerActionReset(index, optionTargetX, optionTargetY);
         }
     } else if (player.isStoring) {
         // TODO
     } else if (player.isPickingUp) {
-        // TODO
+        int optionTargetX = player.optionTargetX;
+        int optionTargetY = player.optionTargetY;
+        Tile& tile = m_tiles[optionTargetX][optionTargetY];
+        int woodToPickup = std::min(Config::PLAYER_MAX_CAPACITY - player.carryingWood, tile.getWoodCount());
+        player.pickupWood(woodToPickup);
+        tile.decreaseWoodCount(woodToPickup);
+
+        if (tile.getWoodCount() == 0) {
+            tile.removeType(Tile::WOOD);
+        }
+
+        DEBUG("OK Plyaer[%d] PICKUP %d\n", index, woodToPickup);
+
+        // 此处去除 TARGET 由 ActionReset 负责
+        playerActionReset(index, optionTargetX, optionTargetY);
     }
 }
 

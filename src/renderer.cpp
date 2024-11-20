@@ -78,6 +78,8 @@ void Renderer::renderCutedTree(int renderX, int renderY, const Map& map, int x, 
 
 void Renderer::renderWood(int renderX, int renderY, const Map& map, int x, int y, const Image& wood) {
     renderCopyImage(wood, renderX, renderY, Config::MAP_UNIT_SIZE, Config::MAP_UNIT_SIZE);
+    const Tile& tile = map.getTile(x, y);
+    renderWoodCount(renderX, renderY, tile.getWoodCount());
 }
 
 void Renderer::renderAnimal(int renderX, int renderY, const Map& map, int x, int y, const Image& animal_left, const Image& animal_right) {
@@ -115,6 +117,15 @@ void Renderer::renderPlayer(int renderX, int renderY, const Map& map, int x, int
     } else if (direction == Entity::UP) {
         renderCopyImage(player_up[playerImageIndex], playerRenderX, playerRenderY, unitSize, unitSize);
     }
+
+    // Render progress bar
+    if (player.isCutting) {
+        renderProgressBar(playerRenderX, playerRenderY, player.cutProgress, Config::CUT_TREE_FRAMES);
+    }
+
+    if (player.carryingWood > 0) {
+        renderWoodCount(playerRenderX, playerRenderY, player.carryingWood);
+    }
 }
 
 void Renderer::renderStore(int renderX, int renderY) {
@@ -150,6 +161,30 @@ void Renderer::renderBackground(const Image& image, int offsetX, int offsetY) {
 
     // 渲染背景图片
     SDL_RenderCopy(m_renderer, image.getTexture(), &srcRect, &destRect);
+}
+
+void Renderer::renderProgressBar(int renderX, int renderY, int progress, int maxProgress) {
+    int barWidth = Config::MAP_UNIT_SIZE;
+    int barHeight = 5;
+    int completedWidth = (progress * barWidth) / maxProgress;
+    int remainingWidth = barWidth - completedWidth;
+
+    // Render completed part in green
+    SDL_SetRenderDrawColor(m_renderer, 0, 255, 0, 255);
+    SDL_Rect completedRect = { renderX, renderY - barHeight - 2, completedWidth, barHeight };
+    SDL_RenderFillRect(m_renderer, &completedRect);
+
+    // Render remaining part in white
+    SDL_SetRenderDrawColor(m_renderer, 255, 255, 255, 255);
+    SDL_Rect remainingRect = { renderX + completedWidth, renderY - barHeight - 2, remainingWidth, barHeight };
+    SDL_RenderFillRect(m_renderer, &remainingRect);
+}
+
+void Renderer::renderWoodCount(int renderX, int renderY, int woodCount) {
+    SDL_Color textColor = { 255, 255, 255, 255 }; // White color
+    std::string woodCountText = std::to_string(woodCount);
+    SDL_Rect textRect = { renderX, renderY, Config::MAP_UNIT_SIZE, Config::MAP_UNIT_SIZE };
+    renderText(woodCountText, textRect, textColor);
 }
 
 

@@ -36,6 +36,8 @@ public:
 
     void setWoodCount(int count);
     int getWoodCount() const;
+    void decreaseWoodCount(int amount);
+
 
 private:
     int m_type; // 使用位掩码来表示不同的 Tile 类型
@@ -64,7 +66,7 @@ public:
     Player::Action findPlayerAction(int index);
     void startPlayerAction(int index, Player::Action action);
     void tryProcessPlayerAction(int index);
-    void playerActionReset(int index);
+    void playerActionReset(int index, int targetX, int targetY);
 
     bool isPositionOccupied(int x, int y) const;
     bool hasReachableCutTreeInMap() const;

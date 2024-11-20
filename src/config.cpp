@@ -64,6 +64,7 @@ const int Config::PLAYER_IMAGE_NUMBERS = 16;
 const int Config::PLAYER_MOVE_FRAMES = 32;
 const int Config::PLAYER_IMAGE_ROUNDS = 2;
 const int Config::PLAYER_IMAGE_ONE_ROUND = Config::PLAYER_MOVE_FRAMES / Config::PLAYER_IMAGE_ROUNDS;
+const int Config::PLAYER_MAX_CAPACITY = 75;
 
 // 砍树所需帧数
 const int Config::CUT_TREE_FRAMES = 64;

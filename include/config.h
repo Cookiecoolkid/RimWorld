@@ -78,6 +78,7 @@ public:
     static const int PLAYER_MOVE_FRAMES;
     static const int PLAYER_IMAGE_ROUNDS;
     static const int PLAYER_IMAGE_ONE_ROUND;
+    static const int PLAYER_MAX_CAPACITY;
 
     // 砍树所需帧数
     static const int CUT_TREE_FRAMES;

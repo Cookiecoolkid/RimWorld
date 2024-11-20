@@ -65,4 +65,8 @@ void Player::updatePlayerDirection(int nextX, int nextY) {
     }
 }
 
+void Player::pickupWood(int amount) {
+    carryingWood += amount;
 
+    assert(carryingWood >= 0 && carryingWood <= Config::PLAYER_MAX_CAPACITY);
+}

@@ -20,6 +20,8 @@ public:
     void renderStartScreen();   
     void renderText(const std::string& text, const SDL_Rect& rect, SDL_Color color);
     void renderBackground(const Image& background, int offsetX, int offsetY);
+    void renderProgressBar(int renderX, int renderY, int progress, int maxProgress);
+    void renderWoodCount(int renderX, int renderY, int woodCount);
 
     void setMapMovingOffset(int offsetX, int offsetY);
     int getMapMovingOffsetX() const;

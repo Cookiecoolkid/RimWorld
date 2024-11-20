@@ -65,7 +65,16 @@ void Game::updateAnimalState() {
 }
 
 void Game::updatePlayerState() {
-    for (int i = 0; i < Config::PLAYER_NUMBERS; ++i) {
+    std::vector<int> playerIndices(Config::PLAYER_NUMBERS);
+    std::iota(playerIndices.begin(), playerIndices.end(), 0); // Fill with 0, 1, ..., PLAYER_NUMBERS - 1
+
+    // Shuffle the player indices
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(playerIndices.begin(), playerIndices.end(), g);
+
+    // Iterate through the shuffled player indices
+    for (int i : playerIndices) {
         Player& player = m_map.m_player_entity[i];
 
         if (player.isFree) {
