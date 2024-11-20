@@ -85,6 +85,9 @@ public:
 
     // 砍树掉落的木头数量
     static const int WOOD_DROP_COUNT;
+
+    // 存储区最大木头容量
+    static const int STORE_MAX_CAPACITY;
 };
 
 #endif // CONFIG_H

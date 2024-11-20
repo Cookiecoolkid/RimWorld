@@ -51,18 +51,24 @@ public:
     bool isCutting = false; // 表示当前是否在砍树
     bool isStoring = false; // 表示当前是否在存储
     bool isPickingUp = false; // 表示当前是否在捡东西
+    bool isDropping = false; // 表示当前是否在丢东西
     int cutProgress = 0; // 砍树进度
     int carryingWood = 0; // 当前携带的木头数量
     std::vector<std::pair<int, int>> path; // 存储寻路路径
     void updatePlayerDirection(int nextX, int nextY);
     void pickupWood(int amount);
+    void dropWood(int amount);
 
     enum Action {
         NONE,
-        MOVE,
+        MOVE_CUT,
+        MOVE_STORE,
+        MOVE_DROP,
+        MOVE_PICKUP,
         CUT,
         STORE,
-        PICKUP
+        PICKUP,
+        DROP,
     };
 };
 

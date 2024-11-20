@@ -128,10 +128,14 @@ void Renderer::renderPlayer(int renderX, int renderY, const Map& map, int x, int
     }
 }
 
-void Renderer::renderStore(int renderX, int renderY) {
+void Renderer::renderStore(int renderX, int renderY, const Map& map, int x, int y) {
     SDL_SetRenderDrawColor(m_renderer, 173, 216, 230, 128);
     SDL_Rect storeRect = { renderX, renderY, Config::MAP_UNIT_SIZE, Config::MAP_UNIT_SIZE };
     SDL_RenderFillRect(m_renderer, &storeRect);
+
+    if (map.getTile(x, y).getWoodCount() > 0) {
+        renderWoodCount(renderX, renderY, map.getTile(x, y).getWoodCount());
+    }
 }
 
 void Renderer::renderStoreArea(const Map& map, int mapStartX, int mapStartY) {
@@ -142,7 +146,7 @@ void Renderer::renderStoreArea(const Map& map, int mapStartX, int mapStartY) {
                 int unitSize = Config::MAP_UNIT_SIZE;
                 int renderX = (x - mapStartX) * unitSize + mapMoving_offsetX;
                 int renderY = (y - mapStartY) * unitSize + mapMoving_offsetY;
-                renderStore(renderX, renderY);
+                renderStore(renderX, renderY, map, x, y);
             }
         }
     }

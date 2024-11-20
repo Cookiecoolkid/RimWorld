@@ -37,6 +37,7 @@ public:
     void setWoodCount(int count);
     int getWoodCount() const;
     void decreaseWoodCount(int amount);
+    void increaseWoodCount(int amount);
 
 
 private:
@@ -69,13 +70,15 @@ public:
     void playerActionReset(int index, int targetX, int targetY);
 
     bool isPositionOccupied(int x, int y) const;
-    bool hasReachableCutTreeInMap() const;
+    bool hasReachableTypeInMap(Tile::Type type) const;
     std::pair<int, int> getAdjacentNonTargetedPosition(int x, int y, Tile::Type targetType);
+    std::pair<int, int> getAdjacentNonOccupiedPosition(int x, int y);
+    std::pair<int, int> getAdjacentNotFullStorePosition(int x, int y);
 
     const Animal& getAnimalAt(int x, int y) const;
     const Player& getPlayerAt(int x, int y) const;
-    std::vector<std::pair<int, int>> findPathToTarget(int startX, int startY, 
-                                                    Tile::Type targetType);
+    std::vector<std::pair<int, int>> findPathToTarget(int startX, int startY, Tile::Type targetType,
+                                    std::function<bool(const Tile&)> extraCondition = nullptr);
 
     // DEBUG
     void printMapTileType() const;

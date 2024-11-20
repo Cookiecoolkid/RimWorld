@@ -71,3 +71,6 @@ const int Config::CUT_TREE_FRAMES = 64;
 
 // 砍树掉落的木头数量
 const int Config::WOOD_DROP_COUNT = 55;
+
+// 存储区最大木头数量
+const int Config::STORE_MAX_CAPACITY = 75;

@@ -54,7 +54,7 @@ private:
                                                             const std::array<Image, 4>& player_left, 
                                                             const std::array<Image, 4>& player_right, 
                                                             const std::array<Image, 4>& player_up);              
-    void renderStore(int renderX, int renderY);
+    void renderStore(int renderX, int renderY, const Map& map, int x, int y);
     void renderStoreArea(const Map& map, int mapStartX, int mapStartY);
 
 };

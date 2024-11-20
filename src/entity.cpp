@@ -70,3 +70,9 @@ void Player::pickupWood(int amount) {
 
     assert(carryingWood >= 0 && carryingWood <= Config::PLAYER_MAX_CAPACITY);
 }
+
+void Player::dropWood(int amount) {
+    carryingWood -= amount;
+
+    assert(carryingWood >= 0 && carryingWood <= Config::PLAYER_MAX_CAPACITY);
+}

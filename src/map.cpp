@@ -33,15 +33,34 @@ void Map::updatePlayerTile(int index) {
 Player::Action Map::findPlayerAction(int index) {
     // TODO
     Player& player = m_player_entity[index];
-    if (isAdjacentTypesReachCount(player.x, player.y, Tile::WOOD, 1) && 
-        player.carryingWood < Config::PLAYER_MAX_CAPACITY) {
-        return Player::Action::PICKUP;
+
+    if (player.carryingWood > 0 && getAdjacentNotFullStorePosition(player.x, player.y).first != -1) {
+        return Player::Action::STORE;
+    }
+    if (player.carryingWood > 0 && hasReachableTypeInMap(Tile::STORE)) {
+        return Player::Action::MOVE_STORE;
+    }
+    if (player.carryingWood > 0 && !hasReachableTypeInMap(Tile::STORE)) {
+        if (getAdjacentNonOccupiedPosition(player.x, player.y).first != -1) {
+            return Player::Action::DROP;
+        } else {
+            return Player::Action::MOVE_DROP;
+        }
+    }
+    if (player.carryingWood < Config::PLAYER_MAX_CAPACITY && 
+        hasReachableTypeInMap(Tile::STORE) && 
+        hasReachableTypeInMap(Tile::WOOD)) {
+            if (isAdjacentTypesReachCount(player.x, player.y, Tile::WOOD, 1)) {
+                return Player::Action::PICKUP;
+            } else {
+                return Player::Action::MOVE_PICKUP;
+            }
     }
     if (isAdjacentTypesReachCount(player.x, player.y, Tile::CUTED_TREE, 1)) {
         return Player::Action::CUT;
     }
-    if (hasReachableCutTreeInMap()) {
-        return Player::Action::MOVE;
+    if (hasReachableTypeInMap(Tile::CUTED_TREE)) {
+        return Player::Action::MOVE_CUT;
     }
     return Player::Action::NONE;
 }
@@ -49,7 +68,7 @@ Player::Action Map::findPlayerAction(int index) {
 void Map::startPlayerAction(int index, Player::Action action) {
     Player& player = m_player_entity[index];
     switch (action) {
-        case Player::Action::MOVE: {
+        case Player::Action::MOVE_CUT: {
             player.path = findPathToTarget(player.x, player.y, Tile::CUTED_TREE);
 
             if (!player.path.empty()) {
@@ -77,8 +96,47 @@ void Map::startPlayerAction(int index, Player::Action action) {
             }
             break;
         }
+        case Player::Action::MOVE_STORE: {
+            player.path = findPathToTarget(player.x, player.y, Tile::STORE, [](const Tile& tile) {
+                return tile.getWoodCount() < Config::STORE_MAX_CAPACITY;
+            });
+
+            if (!player.path.empty()) {
+                player.isFree = false;
+                player.isMoving = true;
+                auto [targetX, targetY] = player.path.back();
+                addTileType(targetX, targetY, Tile::TARGETED);
+                player.path.erase(player.path.begin());
+            } else {
+                // STILL FREE, DO NOTHING
+            }
+            break;
+        }
         case Player::Action::STORE: {
-            // TODO
+            player.isFree = false;
+            player.isStoring = true;
+            std::pair<int, int> optionTarget = getAdjacentNotFullStorePosition(player.x, player.y);
+            if (optionTarget.first != -1 && optionTarget.second != -1) {
+                player.optionTargetX = optionTarget.first;
+                player.optionTargetY = optionTarget.second;
+                addTileType(optionTarget.first, optionTarget.second, Tile::TARGETED);
+            } else {
+                playerActionReset(index, optionTarget.first, optionTarget.second);
+            }
+            break;
+        }
+        case Player::Action::MOVE_PICKUP: {
+            player.path = findPathToTarget(player.x, player.y, Tile::WOOD);
+
+            if (!player.path.empty()) {
+                player.isFree = false;
+                player.isMoving = true;
+                auto [targetX, targetY] = player.path.back();
+                addTileType(targetX, targetY, Tile::TARGETED);
+                player.path.erase(player.path.begin());
+            } else {
+                // STILL FREE, DO NOTHING
+            }
             break;
         }
         case Player::Action::PICKUP: {
@@ -88,7 +146,36 @@ void Map::startPlayerAction(int index, Player::Action action) {
             if (optionTarget.first != -1 && optionTarget.second != -1) {
                 player.optionTargetX = optionTarget.first;
                 player.optionTargetY = optionTarget.second;
-                DEBUG("OK Plyaer[%d] Start PICKUP\n", index);
+
+                addTileType(optionTarget.first, optionTarget.second, Tile::TARGETED);
+            } else {
+                playerActionReset(index, optionTarget.first, optionTarget.second);
+            }
+            break;
+        }
+        case Player::Action::MOVE_DROP: {
+            player.path = findPathToTarget(player.x, player.y, Tile::EMPTY, [](const Tile& tile) {
+                return !tile.hasType(Tile::OCCUPIED);
+            });
+
+            if (!player.path.empty()) {
+                player.isFree = false;
+                player.isMoving = true;
+                auto [targetX, targetY] = player.path.back();
+                addTileType(targetX, targetY, Tile::TARGETED);
+                player.path.erase(player.path.begin());
+            } else {
+                // STILL FREE, DO NOTHING
+            }
+            break;
+        }
+        case Player::Action::DROP: {
+            player.isFree = false;
+            player.isDropping = true;
+            std::pair<int, int> optionTarget = getAdjacentNonOccupiedPosition(player.x, player.y);
+            if (optionTarget.first != -1 && optionTarget.second != -1) {
+                player.optionTargetX = optionTarget.first;
+                player.optionTargetY = optionTarget.second;
                 addTileType(optionTarget.first, optionTarget.second, Tile::TARGETED);
             } else {
                 playerActionReset(index, optionTarget.first, optionTarget.second);
@@ -155,7 +242,14 @@ void Map::tryProcessPlayerAction(int index) {
             playerActionReset(index, optionTargetX, optionTargetY);
         }
     } else if (player.isStoring) {
-        // TODO
+        int optionTargetX = player.optionTargetX;
+        int optionTargetY = player.optionTargetY;
+        Tile& tile = m_tiles[optionTargetX][optionTargetY];
+        int woodToStore = std::min(Config::STORE_MAX_CAPACITY - tile.getWoodCount(), player.carryingWood);
+        player.dropWood(woodToStore);
+        tile.increaseWoodCount(woodToStore);
+
+        playerActionReset(index, optionTargetX, optionTargetY);
     } else if (player.isPickingUp) {
         int optionTargetX = player.optionTargetX;
         int optionTargetY = player.optionTargetY;
@@ -168,15 +262,23 @@ void Map::tryProcessPlayerAction(int index) {
             tile.removeType(Tile::WOOD);
         }
 
-        DEBUG("OK Plyaer[%d] PICKUP %d\n", index, woodToPickup);
+        playerActionReset(index, optionTargetX, optionTargetY);
+    } else if (player.isDropping) {
+        int optionTargetX = player.optionTargetX;
+        int optionTargetY = player.optionTargetY;
+        Tile& tile = m_tiles[optionTargetX][optionTargetY];
+        int woodToDrop = player.carryingWood;
+        player.dropWood(woodToDrop);
+        tile.increaseWoodCount(woodToDrop);
+        tile.addType(Tile::WOOD);
 
-        // 此处去除 TARGET 由 ActionReset 负责
         playerActionReset(index, optionTargetX, optionTargetY);
     }
 }
 
 // 通用的寻路函数
-std::vector<std::pair<int, int>> Map::findPathToTarget(int startX, int startY, Tile::Type targetType) {
+std::vector<std::pair<int, int>> Map::findPathToTarget(int startX, int startY, Tile::Type targetType, 
+                                 std::function<bool(const Tile&)> extraCondition) {
     std::queue<std::pair<int, int>> q;
     std::unordered_map<int, std::pair<int, int>> parent;
     std::vector<std::pair<int, int>> directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
@@ -195,7 +297,8 @@ std::vector<std::pair<int, int>> Map::findPathToTarget(int startX, int startY, T
                 parent.find(newY * m_width + newX) == parent.end()) {
 
                 bool isTarget = getTile(newX, newY).hasType(targetType) && 
-                                !getTile(newX, newY).hasType(Tile::TARGETED);
+                                !getTile(newX, newY).hasType(Tile::TARGETED) &&
+                                (!extraCondition || extraCondition(getTile(newX, newY)));
 
                 if (isPositionOccupied(newX, newY) && !isTarget) {
                     // 如果新位置被占据，则跳过该位置
@@ -211,14 +314,10 @@ std::vector<std::pair<int, int>> Map::findPathToTarget(int startX, int startY, T
                         path.push_back(p);
                     }
                     std::reverse(path.begin(), path.end());
-
-                    DEBUG("Path found to (%d, %d)\n", newX, newY);
                     return path;
                 }
             }
         }
     }
-
-    DEBUG("No path found\n");
     return {};
 }

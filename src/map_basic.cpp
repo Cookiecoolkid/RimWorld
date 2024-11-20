@@ -45,6 +45,10 @@ void Tile::decreaseWoodCount(int amount) {
     }
 }
 
+void Tile::increaseWoodCount(int amount) {
+    m_wood_count += amount;
+}
+
 
 Map::Map(int width, int height) : m_width(width), m_height(height) {
     srand(time(nullptr));
@@ -153,6 +157,35 @@ std::pair<int, int> Map::getAdjacentNonTargetedPosition(int x, int y, Tile::Type
     return std::make_pair(-1, -1);
 }
 
+std::pair<int, int> Map::getAdjacentNotFullStorePosition(int x, int y) {
+    std::vector<std::pair<int, int>> directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+    for (const auto& dir : directions) {
+        int newX = x + dir.first;
+        int newY = y + dir.second;
+        if (newX >= 0 && newX < Config::MAP_WIDTH && newY >= 0 && newY < Config::MAP_HEIGHT) {
+            Tile targetTile = getTile(newX, newY);
+            if (targetTile.hasType(Tile::STORE) && targetTile.getWoodCount() < Config::STORE_MAX_CAPACITY) {
+                return std::make_pair(newX, newY);
+            }
+        }
+    }
+    return std::make_pair(-1, -1);
+}
+
+std::pair<int, int> Map::getAdjacentNonOccupiedPosition(int x, int y) {
+    std::vector<std::pair<int, int>> directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+    for (const auto& dir : directions) {
+        int newX = x + dir.first;
+        int newY = y + dir.second;
+        if (newX >= 0 && newX < Config::MAP_WIDTH && newY >= 0 && newY < Config::MAP_HEIGHT) {
+            if (!isPositionOccupied(newX, newY) && !getTile(newX, newY).hasType(Tile::TARGETED)) {
+                return std::make_pair(newX, newY);
+            }
+        }
+    }
+    return std::make_pair(-1, -1);
+}
+
 bool Map::isPositionOccupied(int x, int y) const {
     Tile tile = getTile(x, y);
     return tile.hasType(Tile::OCCUPIED);
@@ -216,13 +249,18 @@ void Map::playerActionReset(int index, int targetX, int targetY) {
     }
 }
 
-bool Map::hasReachableCutTreeInMap() const {
+bool Map::hasReachableTypeInMap(Tile::Type type) const {
     for (int y = 0; y < m_height; ++y) {
         for (int x = 0; x < m_width; ++x) {
             Tile tile = getTile(x, y);
-            if (tile.hasType(Tile::CUTED_TREE) && !tile.hasType(Tile::TARGETED)) {
+            if (tile.hasType(type) && !tile.hasType(Tile::TARGETED)) {
+                if (type == Tile::STORE) {
+                    Tile targetTile = getTile(x, y);
+                    if (targetTile.getWoodCount() >= Config::STORE_MAX_CAPACITY) {
+                        continue;
+                    }
+                }
                 if (!isAdjacentTypesReachCount(x, y, Tile::OCCUPIED, 4)) {
-                    DEBUG("Found CUTED_TREE at (%d, %d)\n", x, y);
                     return true;
                 }
             }
