@@ -57,7 +57,7 @@ void Game::run() {
         } else {
             // 渲染地图
             m_renderer.renderMap(m_map, m_mapStartX, m_mapStartY, m_background, m_tree, m_cuted_tree, 
-                                 m_wood, m_animal_left, m_animal_right, 
+                                 m_wood, m_wall, m_BGwall, m_animal_left, m_animal_right, 
                                  m_player_down, m_player_left, m_player_right, m_player_up);
         }
         // 显示渲染内容

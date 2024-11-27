@@ -5,6 +5,7 @@
 #include <string>
 #include <utility>  
 #include <vector>
+#include <unordered_set>
 
 class Entity {
 public:
@@ -52,9 +53,15 @@ public:
     bool isStoring = false; // 表示当前是否在存储
     bool isPickingUp = false; // 表示当前是否在捡东西
     bool isDropping = false; // 表示当前是否在丢东西
+    bool isFetching = false; // 表示当前是否在取东西
+    bool isBuilding = false; // 表示当前是否在建造
+    int buildProgress = 0; // 建造进度
     int cutProgress = 0; // 砍树进度
     int carryingWood = 0; // 当前携带的木头数量
+    
     std::vector<std::pair<int, int>> path; // 存储寻路路径
+    std::unordered_set<int> unreachableTargets; // 存储无法到达的目标
+
     void updatePlayerDirection(int nextX, int nextY);
     void pickupWood(int amount);
     void dropWood(int amount);
@@ -65,10 +72,14 @@ public:
         MOVE_STORE,
         MOVE_DROP,
         MOVE_PICKUP,
+        MOVE_FETCH,
+        MOVE_BUILD,
         CUT,
         STORE,
         PICKUP,
         DROP,
+        FETCH,
+        BUILD,
     };
 };
 

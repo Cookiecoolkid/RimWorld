@@ -56,6 +56,8 @@ private:
     std::string m_animalPath[2];
     Image m_animal_left;
     Image m_animal_right;
+    Image m_wall;
+    Image m_BGwall;
 
     std::string m_playerPath[16];
     std::array<Image, 4> m_player_up;

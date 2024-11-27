@@ -31,6 +31,7 @@ public:
 
     void renderMap(const Map& map, int mapStartX, int mapStartY, const Image& background,
         const Image& tree, const Image& cuted_tree, const Image& wood,
+        const Image& wall, const Image& BGwall,
         const Image& animal_left, const Image& animal_right, std::array<Image, 4>& player_down,
         std::array<Image, 4>& player_left, std::array<Image, 4>& player_right, 
         std::array<Image, 4>& player_up);
@@ -55,8 +56,9 @@ private:
                                                             const std::array<Image, 4>& player_right, 
                                                             const std::array<Image, 4>& player_up);              
     void renderStore(int renderX, int renderY, const Map& map, int x, int y);
-    void renderStoreArea(const Map& map, int mapStartX, int mapStartY);
-
+    void renderStoreAreaAndBlueGraphWall(const Map& map, int mapStartX, int mapStartY);
+    void renderWall(int renderX, int renderY, const Map& map, int x, int y, const Image& wall);
+    void renderBlueGraphWall(int renderX, int renderY, const Map& map, int x, int y);
 };
 
 #endif // RENDERER_H

@@ -34,22 +34,49 @@ Player::Action Map::findPlayerAction(int index) {
     // TODO
     Player& player = m_player_entity[index];
 
+    if ((player.carryingWood == Config::WALL_BUILD_WOOD_COUNT) && 
+                            hasReachableTypeInMap(Tile::BGWALL, index)) {
+        if (getAdjacentNonTargetedPosition(player.x, player.y, Tile::BGWALL).first != -1) {
+            return Player::Action::BUILD;
+        } else {
+            return Player::Action::MOVE_BUILD;
+        }
+    }
+
+    if (player.carryingWood < Config::WALL_BUILD_WOOD_COUNT && 
+        hasReachableTypeInMap(Tile::BGWALL, index) &&
+        hasReachableTypeInMap(Tile::STORE, index, [](const Tile& tile) {
+            return tile.getWoodCount() >= 1;
+    })) 
+    {
+        if (getAdjacentAtLeastNumStorePosition(player.x, player.y, 1).first != -1) {
+            return Player::Action::FETCH;
+        } else {
+            return Player::Action::MOVE_FETCH;
+        }
+    }
+
     if (player.carryingWood > 0 && getAdjacentNotFullStorePosition(player.x, player.y).first != -1) {
         return Player::Action::STORE;
     }
-    if (player.carryingWood > 0 && hasReachableTypeInMap(Tile::STORE)) {
+    if (player.carryingWood > 0 && hasReachableTypeInMap(Tile::STORE, index, [](const Tile& tile) {
+        return tile.getWoodCount() < Config::STORE_MAX_CAPACITY;
+    })) 
+    {
         return Player::Action::MOVE_STORE;
     }
-    if (player.carryingWood > 0 && !hasReachableTypeInMap(Tile::STORE)) {
+
+    if (player.carryingWood > 0 && !hasReachableTypeInMap(Tile::STORE, index)) {
         if (getAdjacentNonOccupiedPosition(player.x, player.y).first != -1) {
             return Player::Action::DROP;
         } else {
             return Player::Action::MOVE_DROP;
         }
     }
+
     if (player.carryingWood < Config::PLAYER_MAX_CAPACITY && 
-        hasReachableTypeInMap(Tile::STORE) && 
-        hasReachableTypeInMap(Tile::WOOD)) {
+        hasReachableTypeInMap(Tile::STORE, index) && 
+        hasReachableTypeInMap(Tile::WOOD, index)) {
             if (isAdjacentTypesReachCount(player.x, player.y, Tile::WOOD, 1)) {
                 return Player::Action::PICKUP;
             } else {
@@ -59,7 +86,7 @@ Player::Action Map::findPlayerAction(int index) {
     if (isAdjacentTypesReachCount(player.x, player.y, Tile::CUTED_TREE, 1)) {
         return Player::Action::CUT;
     }
-    if (hasReachableTypeInMap(Tile::CUTED_TREE)) {
+    if (hasReachableTypeInMap(Tile::CUTED_TREE, index)) {
         return Player::Action::MOVE_CUT;
     }
     return Player::Action::NONE;
@@ -182,6 +209,66 @@ void Map::startPlayerAction(int index, Player::Action action) {
             }
             break;
         }
+        case Player::Action::MOVE_FETCH: {
+            player.path = findPathToTarget(player.x, player.y, Tile::STORE, [](const Tile& tile) {
+                return tile.getWoodCount() >= Config::WALL_BUILD_WOOD_COUNT;
+            });
+
+            if (!player.path.empty()) {
+                player.isFree = false;
+                player.isMoving = true;
+                auto [targetX, targetY] = player.path.back();
+                addTileType(targetX, targetY, Tile::TARGETED);
+                player.path.erase(player.path.begin());
+            } else {
+                // STILL FREE, DO NOTHING
+            }
+            break;
+        }
+        case Player::Action::FETCH: {
+            player.isFree = false;
+            player.isFetching = true;
+            std::pair<int, int> optionTarget = getAdjacentAtLeastNumStorePosition(player.x, player.y, Config::WALL_BUILD_WOOD_COUNT);
+            if (optionTarget.first != -1 && optionTarget.second != -1) {
+                player.optionTargetX = optionTarget.first;
+                player.optionTargetY = optionTarget.second;
+                addTileType(optionTarget.first, optionTarget.second, Tile::TARGETED);
+            } else {
+                playerActionReset(index, optionTarget.first, optionTarget.second);
+            }
+            break;
+        }
+        case Player::Action::MOVE_BUILD: {
+            player.path = findPathToTarget(player.x, player.y, Tile::BGWALL);
+
+            if (!player.path.empty()) {
+                player.isFree = false;
+                player.isMoving = true;
+                auto [targetX, targetY] = player.path.back();
+                addTileType(targetX, targetY, Tile::TARGETED);
+                player.path.erase(player.path.begin());
+            } else {
+                // STILL FREE, DO NOTHING
+            }
+            break;
+        }
+        case Player::Action::BUILD: {
+            player.isFree = false;
+            player.isBuilding = true;
+            player.buildProgress = 0;
+            std::pair<int, int> optionTarget = getAdjacentNonTargetedPosition(player.x, player.y, Tile::BGWALL);
+            if (optionTarget.first != -1 && optionTarget.second != -1) {
+                player.optionTargetX = optionTarget.first;
+                player.optionTargetY = optionTarget.second;
+
+                addTileType(optionTarget.first, optionTarget.second, Tile::TARGETED);
+                addTileType(optionTarget.first, optionTarget.second, Tile::OCCUPIED);
+                player.dropWood(Config::WALL_BUILD_WOOD_COUNT);
+            } else {
+                playerActionReset(index, optionTarget.first, optionTarget.second);
+            }
+            break;
+        }
         default:
             break;
     }
@@ -190,6 +277,10 @@ void Map::startPlayerAction(int index, Player::Action action) {
 void Map::tryProcessPlayerAction(int index) {
     Player& player = m_player_entity[index];
 
+    /*
+    DEBUG("Player %d Process Action, isFree = %d, isMoving = %d, isCutting = %d, isStoring = %d, isPickingUp = %d, isDropping = %d, isFetching = %d, isBuilding = %d\n", 
+            index, player.isFree, player.isMoving, player.isCutting, player.isStoring, player.isPickingUp, player.isDropping, player.isFetching, player.isBuilding);
+    */
     if (player.isMoving) {
         if (player.isStepping) {
             player.stepProgress++;
@@ -273,6 +364,29 @@ void Map::tryProcessPlayerAction(int index) {
         tile.addType(Tile::WOOD);
 
         playerActionReset(index, optionTargetX, optionTargetY);
+    } else if (player.isFetching) {
+        int optionTargetX = player.optionTargetX;
+        int optionTargetY = player.optionTargetY;
+        Tile& tile = m_tiles[optionTargetX][optionTargetY];
+        // 保证取到的木头数量 + 自己身上的恰好等于 Config::WALL_BUILD_WOOD_COUNT，并且取到的木头数量不超过存储区的容量
+        int woodToFetch = std::min(Config::WALL_BUILD_WOOD_COUNT - player.carryingWood, tile.getWoodCount());
+        player.pickupWood(woodToFetch);
+        tile.decreaseWoodCount(woodToFetch);
+
+        playerActionReset(index, optionTargetX, optionTargetY);
+    } else if (player.isBuilding) {
+        player.buildProgress++;
+        if (player.buildProgress >= Config::WALL_BUILD_FRAMES) {
+            int optionTargetX = player.optionTargetX;
+            int optionTargetY = player.optionTargetY;
+            Tile& tile = m_tiles[optionTargetX][optionTargetY];
+            assert(tile.hasType(Tile::BGWALL));
+
+            tile.removeType(Tile::BGWALL);
+            tile.addType(Tile::WALL);
+
+            playerActionReset(index, optionTargetX, optionTargetY);
+        }
     }
 }
 

@@ -24,6 +24,8 @@ const std::string Config::IMAGE_BACKGROUND_PATH = "image/out_desert.png";
 const std::string Config::IMAGE_TREE_PATH = "image/tree.png";
 const std::string Config::IMAGE_CUTED_TREE_PATH = "image/cuted_tree.png";
 const std::string Config::IMAGE_WOOD_PATH = "image/wood.png";
+const std::string Config::IMAGE_WALL_PATH = "image/wall.png";
+const std::string Config::IMAGE_BGWALL_PATH = "image/BGwall.png";
 
 // 图片大小
 const int Config::IMAGE_BACKGROUND_WIDTH = 5120;
@@ -74,3 +76,9 @@ const int Config::WOOD_DROP_COUNT = 55;
 
 // 存储区最大木头数量
 const int Config::STORE_MAX_CAPACITY = 75;
+
+// 建造墙壁所需木头数量
+const int Config::WALL_BUILD_WOOD_COUNT = 5;
+
+// 建造墙壁所需帧数
+const int Config::WALL_BUILD_FRAMES = 64;

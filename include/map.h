@@ -25,6 +25,7 @@ public:
         OCCUPIED = 1 << 7,
         TARGETED = 1 << 8,
         WOOD = 1 << 9,
+        BGWALL = 1 << 10,
     };
 
     Tile(Type type = EMPTY);
@@ -53,6 +54,7 @@ public:
     void placeRandomTrees(int count);
     void setStoreArea(int startX, int startY, int endX, int endY);
     void setCutArea(int startX, int startY, int endX, int endY);
+    void setBGWall(int x, int y);
     bool isAdjacentTypesReachCount(int x, int y, Tile::Type type, int count) const;
 
     // Animal & Player
@@ -70,10 +72,14 @@ public:
     void playerActionReset(int index, int targetX, int targetY);
 
     bool isPositionOccupied(int x, int y) const;
-    bool hasReachableTypeInMap(Tile::Type type) const;
+    bool hasReachableTypeInMap(Tile::Type type, int index,
+                                    std::function<bool(const Tile&)> extraCondition = nullptr);
+    bool isReachable(int startX, int startY, int goalX, int goalY) const;
+
     std::pair<int, int> getAdjacentNonTargetedPosition(int x, int y, Tile::Type targetType);
     std::pair<int, int> getAdjacentNonOccupiedPosition(int x, int y);
     std::pair<int, int> getAdjacentNotFullStorePosition(int x, int y);
+    std::pair<int, int> getAdjacentAtLeastNumStorePosition(int x, int y, int num);
 
     const Animal& getAnimalAt(int x, int y) const;
     const Player& getPlayerAt(int x, int y) const;

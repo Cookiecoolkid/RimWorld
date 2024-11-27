@@ -5,7 +5,7 @@
 ImageBase::ImageBase(): m_texture(nullptr) {}
 
 ImageBase::~ImageBase() {
-    DEBUG("ImageBase Destructor\n");
+    // DEBUG("ImageBase Destructor\n");
     if (m_texture) {
         SDL_DestroyTexture(m_texture);
         m_texture = nullptr;

@@ -91,6 +91,16 @@ bool Game::init_load_image() {
         return false;
     }
 
+    m_wall = Image(Config::IMAGE_WALL_PATH);
+    if (!m_wall.load(m_renderer.getSDLRenderer())) {
+        return false;
+    }
+
+    m_BGwall = Image(Config::IMAGE_BGWALL_PATH);
+    if (!m_BGwall.load(m_renderer.getSDLRenderer())) {
+        return false;
+    }
+
     m_animal_left = Image(m_animalPath[0]);
     if (!m_animal_left.load(m_renderer.getSDLRenderer())) {
         return false;

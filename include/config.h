@@ -38,6 +38,8 @@ public:
     static const std::string IMAGE_TREE_PATH;
     static const std::string IMAGE_CUTED_TREE_PATH;
     static const std::string IMAGE_WOOD_PATH;
+    static const std::string IMAGE_WALL_PATH;
+    static const std::string IMAGE_BGWALL_PATH;
 
     // 图片大小
     static const int IMAGE_BACKGROUND_WIDTH;
@@ -88,6 +90,12 @@ public:
 
     // 存储区最大木头容量
     static const int STORE_MAX_CAPACITY;
+
+    // 建造墙壁所需木头数量
+    static const int WALL_BUILD_WOOD_COUNT;
+
+    // 建造墙壁所需帧数
+    static const int WALL_BUILD_FRAMES;
 };
 
 #endif // CONFIG_H

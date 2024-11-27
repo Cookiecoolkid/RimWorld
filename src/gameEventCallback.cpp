@@ -41,6 +41,10 @@ void Game::onKeyDown(const SDL_Event& event) {
             m_mode = MODE_CUT;
             DEBUG("Mode: Cut\n");
             break;
+        case SDLK_4:
+            m_mode = MODE_BUILD;
+            DEBUG("Mode: Build\n");
+            break;
         default:
             break;
     }
@@ -62,6 +66,8 @@ void Game::onMouseButtonDown(const SDL_Event& event) {
     } else if ((m_mode == MODE_STORE || m_mode == MODE_CUT) && event.button.button == SDL_BUTTON_LEFT) {
         m_storeStartX = x;
         m_storeStartY = y;
+    } else if (m_mode == MODE_BUILD && event.button.button == SDL_BUTTON_LEFT) {
+        m_map.setBGWall(x, y);
     }
 }
 

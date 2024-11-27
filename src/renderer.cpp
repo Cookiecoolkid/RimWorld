@@ -121,6 +121,8 @@ void Renderer::renderPlayer(int renderX, int renderY, const Map& map, int x, int
     // Render progress bar
     if (player.isCutting) {
         renderProgressBar(playerRenderX, playerRenderY, player.cutProgress, Config::CUT_TREE_FRAMES);
+    } else if (player.isBuilding) {
+        renderProgressBar(playerRenderX, playerRenderY, player.buildProgress, Config::WALL_BUILD_FRAMES);
     }
 
     if (player.carryingWood > 0) {
@@ -138,18 +140,31 @@ void Renderer::renderStore(int renderX, int renderY, const Map& map, int x, int 
     }
 }
 
-void Renderer::renderStoreArea(const Map& map, int mapStartX, int mapStartY) {
+void Renderer::renderStoreAreaAndBlueGraphWall(const Map& map, int mapStartX, int mapStartY) {
     for (int y = mapStartY; y < mapStartY + Config::MAP_RENDER_HEIGHT && y < Config::MAP_HEIGHT; ++y) {
         for (int x = mapStartX; x < mapStartX + Config::MAP_RENDER_WIDTH && x < Config::MAP_WIDTH; ++x) {
             Tile tile = map.getTile(x, y);
+            int unitSize = Config::MAP_UNIT_SIZE;
+            int renderX = (x - mapStartX) * unitSize + mapMoving_offsetX;
+            int renderY = (y - mapStartY) * unitSize + mapMoving_offsetY;
             if (tile.hasType(Tile::STORE)) {
-                int unitSize = Config::MAP_UNIT_SIZE;
-                int renderX = (x - mapStartX) * unitSize + mapMoving_offsetX;
-                int renderY = (y - mapStartY) * unitSize + mapMoving_offsetY;
                 renderStore(renderX, renderY, map, x, y);
+            }
+            if (tile.hasType(Tile::BGWALL)) {
+                renderBlueGraphWall(renderX, renderY, map, x, y);
             }
         }
     }
+}
+
+void Renderer::renderWall(int renderX, int renderY, const Map& map, int x, int y, const Image& wall) {
+    renderCopyImage(wall, renderX, renderY, Config::MAP_UNIT_SIZE, Config::MAP_UNIT_SIZE);
+}
+
+void Renderer::renderBlueGraphWall(int renderX, int renderY, const Map& map, int x, int y) {
+    SDL_SetRenderDrawColor(m_renderer, 210, 180, 140, 128); // 设置浅褐色 (210, 180, 140) 和透明度 (128)
+    SDL_Rect wallRect = { renderX, renderY, Config::MAP_UNIT_SIZE, Config::MAP_UNIT_SIZE };
+    SDL_RenderFillRect(m_renderer, &wallRect);
 }
 
 void Renderer::renderBackground(const Image& image, int offsetX, int offsetY) {
@@ -194,6 +209,7 @@ void Renderer::renderWoodCount(int renderX, int renderY, int woodCount) {
 
 void Renderer::renderMap(const Map& map, int mapStartX, int mapStartY, const Image& background,
                          const Image& tree, const Image& cuted_tree, const Image& wood,
+                         const Image& wall, const Image& BGwall,
                          const Image& animal_left, const Image& animal_right, std::array<Image, 4>& player_down,
                          std::array<Image, 4>& player_left, std::array<Image, 4>& player_right,
                          std::array<Image, 4>& player_up) {
@@ -205,7 +221,7 @@ void Renderer::renderMap(const Map& map, int mapStartX, int mapStartY, const Ima
     renderBackground(background, backgroundOffsetX, backgroundOffsetY);
 
     // 先渲染 STORE 图层 保证 STORE 在最下层完整显示
-    renderStoreArea(map, mapStartX, mapStartY);
+    renderStoreAreaAndBlueGraphWall(map, mapStartX, mapStartY);
 
     for (int y = mapStartY; y < mapStartY + Config::MAP_RENDER_HEIGHT && y < Config::MAP_HEIGHT; ++y) {
         for (int x = mapStartX; x < mapStartX + Config::MAP_RENDER_WIDTH && x < Config::MAP_WIDTH; ++x) {
@@ -233,7 +249,7 @@ void Renderer::renderMap(const Map& map, int mapStartX, int mapStartY, const Ima
                 renderWood(renderX, renderY, map, x, y, wood);
             }
             if (tile.hasType(Tile::WALL)) {
-                // TODO
+                renderWall(renderX, renderY, map, x, y, wall);
             }
             if (tile.hasType(Tile::DOOR)) {
                 // TODO

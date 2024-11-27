@@ -4,6 +4,7 @@
 #include <queue>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 #include <functional>
 
 Tile::Tile(Type type): m_type(type) {}
@@ -128,6 +129,8 @@ bool Map::canMoveTo(int x, int y) {
     return !isPositionOccupied(x, y);
 }
 
+
+
 bool Map::isAdjacentTypesReachCount(int x, int y, Tile::Type type, int count) const {
     int numStore = 0;
     std::vector<std::pair<int, int>> directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
@@ -165,6 +168,21 @@ std::pair<int, int> Map::getAdjacentNotFullStorePosition(int x, int y) {
         if (newX >= 0 && newX < Config::MAP_WIDTH && newY >= 0 && newY < Config::MAP_HEIGHT) {
             Tile targetTile = getTile(newX, newY);
             if (targetTile.hasType(Tile::STORE) && targetTile.getWoodCount() < Config::STORE_MAX_CAPACITY) {
+                return std::make_pair(newX, newY);
+            }
+        }
+    }
+    return std::make_pair(-1, -1);
+}
+
+std::pair<int, int> Map::getAdjacentAtLeastNumStorePosition(int x, int y, int num) {
+    std::vector<std::pair<int, int>> directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+    for (const auto& dir : directions) {
+        int newX = x + dir.first;
+        int newY = y + dir.second;
+        if (newX >= 0 && newX < Config::MAP_WIDTH && newY >= 0 && newY < Config::MAP_HEIGHT) {
+            Tile targetTile = getTile(newX, newY);
+            if (targetTile.hasType(Tile::STORE) && targetTile.getWoodCount() >= num) {
                 return std::make_pair(newX, newY);
             }
         }
@@ -215,6 +233,15 @@ void Map::setCutArea(int startX, int startY, int endX, int endY) {
     }
 }
 
+void Map::setBGWall(int x, int y) {
+    Tile tile = getTile(x, y);
+    if (x >= 0 && x < Config::MAP_WIDTH && y >= 0 && y < Config::MAP_HEIGHT) {
+        if (!tile.hasType(Tile::OCCUPIED)) {
+            addTileType(x, y, Tile::BGWALL);
+        }
+    }
+}
+
 const Animal& Map::getAnimalAt(int x, int y) const {
     // 这里的 x, y 与 tile 的 x, y 对应
     for (const auto& animal : m_animal_entity) {
@@ -242,6 +269,9 @@ void Map::playerActionReset(int index, int targetX, int targetY) {
     player.isCutting = false;
     player.isStoring = false;
     player.isPickingUp = false;
+    player.isDropping = false;
+    player.isFetching = false;
+    player.isBuilding = false;
     player.path.clear();
 
     if (targetX != -1 && targetY != -1) {
@@ -249,19 +279,65 @@ void Map::playerActionReset(int index, int targetX, int targetY) {
     }
 }
 
-bool Map::hasReachableTypeInMap(Tile::Type type) const {
+bool Map::isReachable(int startX, int startY, int goalX, int goalY) const {
+    std::queue<std::pair<int, int>> q;
+    std::unordered_set<int> visited;
+    std::vector<std::pair<int, int>> directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+    q.push({startX, startY});
+    visited.insert(startY * m_width + startX);
+
+    while (!q.empty()) {
+        auto [x, y] = q.front();
+        q.pop();
+
+        for (const auto& dir : directions) {
+            int newX = x + dir.first;
+            int newY = y + dir.second;
+
+            if (newX < 0 || newX >= m_width || newY < 0 || newY >= m_height) {
+                continue; // Skip out-of-bound positions
+            }
+
+            if (newX == goalX && newY == goalY) {
+                return true;
+            }
+
+            int newKey = newY * m_width + newX;
+            if (visited.find(newKey) == visited.end()) {
+                visited.insert(newKey);
+                Tile tile = getTile(newX, newY);
+
+                if (tile.hasType(Tile::OCCUPIED)) {
+                    continue; // Skip occupied positions
+                }
+
+                q.push({newX, newY});
+            }
+        }
+    }
+    return false;
+}
+
+bool Map::hasReachableTypeInMap(Tile::Type type, int index,
+                                std::function<bool(const Tile&)> extraCondition) {
+    Player& player = m_player_entity[index];
+    int playerX = player.x;
+    int playerY = player.y;
     for (int y = 0; y < m_height; ++y) {
         for (int x = 0; x < m_width; ++x) {
             Tile tile = getTile(x, y);
+            int targetKey = y * m_width + x;
             if (tile.hasType(type) && !tile.hasType(Tile::TARGETED)) {
-                if (type == Tile::STORE) {
-                    Tile targetTile = getTile(x, y);
-                    if (targetTile.getWoodCount() >= Config::STORE_MAX_CAPACITY) {
-                        continue;
-                    }
+                if (extraCondition && !extraCondition(tile)) {
+                    continue;
                 }
-                if (!isAdjacentTypesReachCount(x, y, Tile::OCCUPIED, 4)) {
+                if (player.unreachableTargets.find(targetKey) != player.unreachableTargets.end()) {
+                    continue; // Skip if the target is in the unreachable set
+                }
+                if (isReachable(playerX, playerY, x, y)) {
                     return true;
+                } else {
+                    player.unreachableTargets.insert(targetKey); // Mark as unreachable
                 }
             }
         }
