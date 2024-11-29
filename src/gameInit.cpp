@@ -76,6 +76,11 @@ bool Game::init_load_image() {
         return false;
     }
 
+    m_start_background = Image(Config::IMAGE_START_BACKGROUND_PATH);
+    if (!m_start_background.load(m_renderer.getSDLRenderer())) {
+        return false;
+    }
+
     m_tree = Image(Config::IMAGE_TREE_PATH);
     if (!m_tree.load(m_renderer.getSDLRenderer())) {
         return false;

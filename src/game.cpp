@@ -4,6 +4,7 @@
 #include <SDL2/SDL_image.h>
 #include <iostream>
 #include <cassert>
+#include "save_load.h"
 
 Game::Game(const std::string& title, int width, int height)
     : m_window(title, width, height), m_renderer(nullptr), m_timer(), m_mode(MODE_START), m_isRunning(false), 
@@ -11,6 +12,8 @@ Game::Game(const std::string& title, int width, int height)
 
 Game::~Game() {
     DEBUG("Game Destructor\n");
+
+    saveGame(*this, Config::SAVE_FILE_NAME);
 
     // Sequence is important
     IMG_Quit(); 
@@ -53,7 +56,7 @@ void Game::run() {
 
         // 更新渲染
         if (m_mode == MODE_START) {
-            m_renderer.renderStartScreen();
+            m_renderer.renderStartScreen(m_start_background);
         } else {
             // 渲染地图
             m_renderer.renderMap(m_map, m_mapStartX, m_mapStartY, m_background, m_tree, m_cuted_tree, 

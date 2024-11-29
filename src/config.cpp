@@ -9,9 +9,15 @@ const int Config::WINDOW_HEIGHT = 1600;
 
 // 开始界面 开始按钮设置
 const int Config::START_BUTTON_X = Config::WINDOW_WIDTH / 2 - 200;
-const int Config::START_BUTTON_Y = Config::WINDOW_HEIGHT / 2 - 100;
+const int Config::START_BUTTON_Y = Config::WINDOW_HEIGHT / 2 - 200;
 const int Config::START_BUTTON_WIDTH = 400;
 const int Config::START_BUTTON_HEIGHT = 200;
+
+// Continue button configurations
+const int Config::CONTINUE_BUTTON_X = START_BUTTON_X;
+const int Config::CONTINUE_BUTTON_Y = START_BUTTON_Y + START_BUTTON_HEIGHT + 20; // 20 pixels below the Start button
+const int Config::CONTINUE_BUTTON_WIDTH = START_BUTTON_WIDTH;
+const int Config::CONTINUE_BUTTON_HEIGHT = START_BUTTON_HEIGHT;
 
 // 字体文件路径
 const std::string Config::FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf";
@@ -26,6 +32,7 @@ const std::string Config::IMAGE_CUTED_TREE_PATH = "image/cuted_tree.png";
 const std::string Config::IMAGE_WOOD_PATH = "image/wood.png";
 const std::string Config::IMAGE_WALL_PATH = "image/wall.png";
 const std::string Config::IMAGE_BGWALL_PATH = "image/BGwall.png";
+const std::string Config::IMAGE_START_BACKGROUND_PATH = "image/start_background.png";
 
 // 图片大小
 const int Config::IMAGE_BACKGROUND_WIDTH = 5120;
@@ -82,3 +89,6 @@ const int Config::WALL_BUILD_WOOD_COUNT = 5;
 
 // 建造墙壁所需帧数
 const int Config::WALL_BUILD_FRAMES = 64;
+
+// 存档 JSON 文件名
+const std::string Config::SAVE_FILE_NAME = "save.json";

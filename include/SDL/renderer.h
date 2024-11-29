@@ -17,7 +17,7 @@ public:
     void clear();
     void present();
     void renderCopyImage(const Image& image, int x, int y, int w, int h);
-    void renderStartScreen();   
+    void renderStartScreen(const Image& start_background);   
     void renderText(const std::string& text, const SDL_Rect& rect, SDL_Color color);
     void renderBackground(const Image& background, int offsetX, int offsetY);
     void renderProgressBar(int renderX, int renderY, int progress, int maxProgress);

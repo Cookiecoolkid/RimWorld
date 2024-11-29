@@ -27,6 +27,12 @@ public:
     static const int START_BUTTON_WIDTH;
     static const int START_BUTTON_HEIGHT;
 
+    // Continue button configurations
+    static const int CONTINUE_BUTTON_X;
+    static const int CONTINUE_BUTTON_Y;
+    static const int CONTINUE_BUTTON_WIDTH;
+    static const int CONTINUE_BUTTON_HEIGHT;
+
     // 字体文件路径
     static const std::string FONT_PATH;
 
@@ -40,6 +46,7 @@ public:
     static const std::string IMAGE_WOOD_PATH;
     static const std::string IMAGE_WALL_PATH;
     static const std::string IMAGE_BGWALL_PATH;
+    static const std::string IMAGE_START_BACKGROUND_PATH;
 
     // 图片大小
     static const int IMAGE_BACKGROUND_WIDTH;
@@ -96,6 +103,9 @@ public:
 
     // 建造墙壁所需帧数
     static const int WALL_BUILD_FRAMES;
+
+    // 存档 JSON 文件名
+    static const std::string SAVE_FILE_NAME;
 };
 
 #endif // CONFIG_H

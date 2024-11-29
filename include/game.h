@@ -13,6 +13,7 @@
 #include <array>
 #include <string>
 
+
 #ifndef IMG_INIT_GIF
 #define IMG_INIT_GIF 0x00000004
 #endif
@@ -38,6 +39,10 @@ public:
     void updateAnimalState();
     void updatePlayerState();
 
+    // 友元函数声明
+    friend void saveGame(const Game& game, const std::string& filename);
+    friend void loadGame(Game& game, const std::string& filename);
+
 private:
     // Basic Game Components 
     Window m_window;
@@ -50,6 +55,7 @@ private:
     
     // Images
     Image m_background;
+    Image m_start_background;
     Image m_tree;
     Image m_cuted_tree;
     Image m_wood;

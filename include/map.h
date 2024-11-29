@@ -9,6 +9,7 @@
 #include <unordered_map>
 #include "entity.h"
 #include <algorithm>
+#include <nlohmann/json.hpp>
 
 
 class Tile {
@@ -40,6 +41,8 @@ public:
     void decreaseWoodCount(int amount);
     void increaseWoodCount(int amount);
 
+    friend void to_json(nlohmann::json& j, const Tile& t);
+    friend void from_json(const nlohmann::json& j, Tile& t);
 
 private:
     int m_type; // 使用位掩码来表示不同的 Tile 类型
@@ -92,6 +95,9 @@ public:
     Tile getTile(int x, int y) const;
     void addTileType(int x, int y, Tile::Type type);
     void removeTileType(int x, int y, Tile::Type type);
+
+    friend void to_json(nlohmann::json& j, const Map& m);
+    friend void from_json(const nlohmann::json& j, Map& m);
 
 private:
     int m_width;

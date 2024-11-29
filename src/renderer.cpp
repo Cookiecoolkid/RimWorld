@@ -261,12 +261,13 @@ void Renderer::renderMap(const Map& map, int mapStartX, int mapStartY, const Ima
     }
 }
 
-void Renderer::renderStartScreen() {
-    SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255); // 设置背景颜色为黑色
-    SDL_RenderClear(m_renderer);
+void Renderer::renderStartScreen(const Image& start_background) {
+    // SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255); // 设置背景颜色为黑色
+    // SDL_RenderClear(m_renderer);
+    SDL_RenderCopy(m_renderer, start_background.getTexture(), nullptr, nullptr);
 
     // 设置开始按钮的颜色和位置
-    SDL_SetRenderDrawColor(m_renderer, 255, 255, 255, 255); // 设置按钮颜色为白色
+    SDL_SetRenderDrawColor(m_renderer, 255, 255, 255, 128); // 设置按钮颜色为白色
     SDL_Rect startButton = { Config::START_BUTTON_X, Config::START_BUTTON_Y, 
                              Config::START_BUTTON_WIDTH, Config::START_BUTTON_HEIGHT };
     SDL_RenderFillRect(m_renderer, &startButton);
@@ -274,6 +275,14 @@ void Renderer::renderStartScreen() {
     // 在按钮上渲染文字“Start”
     SDL_Color textColor = { 0, 0, 0, 255 }; // 黑色文字
     renderText("Start", startButton, textColor);
+
+    // 设置继续按钮的颜色和位置
+    SDL_Rect continueButton = { Config::CONTINUE_BUTTON_X, Config::CONTINUE_BUTTON_Y, 
+                                Config::CONTINUE_BUTTON_WIDTH, Config::CONTINUE_BUTTON_HEIGHT };
+    SDL_RenderFillRect(m_renderer, &continueButton);
+
+    // 在按钮上渲染文字“Continue”
+    renderText("Continue", continueButton, textColor);
 }
 
 void Renderer::renderText(const std::string& text, const SDL_Rect& rect, SDL_Color color) {

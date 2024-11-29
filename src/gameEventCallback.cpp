@@ -2,10 +2,14 @@
 #include "config.h"
 #include <iostream>
 #include <SDL2/SDL.h>
+#include "save_load.h"
 
 void Game::onQuit(const SDL_Event& event) {
     std::cout << "Quitting..." << std::endl;
     m_isRunning = false;
+
+    // Save game state
+    saveGame(*this, Config::SAVE_FILE_NAME);
 
     SDL_Quit();
     exit(0);
@@ -59,8 +63,16 @@ void Game::onMouseButtonDown(const SDL_Event& event) {
         int mouseY = event.button.y;
         SDL_Rect startButton = { Config::START_BUTTON_X, Config::START_BUTTON_Y, 
                                  Config::START_BUTTON_WIDTH, Config::START_BUTTON_HEIGHT };
+
+        SDL_Rect continueButton = { Config::CONTINUE_BUTTON_X, Config::CONTINUE_BUTTON_Y, 
+                                    Config::CONTINUE_BUTTON_WIDTH, Config::CONTINUE_BUTTON_HEIGHT };
+
         if (mouseX >= startButton.x && mouseX <= startButton.x + startButton.w &&
             mouseY >= startButton.y && mouseY <= startButton.y + startButton.h) {
+            m_mode = MODE_NONE; // 切换到游戏状态
+        } else if (mouseX >= continueButton.x && mouseX <= continueButton.x + continueButton.w &&
+                   mouseY >= continueButton.y && mouseY <= continueButton.y + continueButton.h) {
+            loadGame(*this, Config::SAVE_FILE_NAME); // 加载游戏进度
             m_mode = MODE_NONE; // 切换到游戏状态
         }
     } else if ((m_mode == MODE_STORE || m_mode == MODE_CUT) && event.button.button == SDL_BUTTON_LEFT) {

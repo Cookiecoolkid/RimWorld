@@ -7,6 +7,7 @@
 #include <vector>
 #include <unordered_set>
 
+
 class Entity {
 public:
     enum Direction {
