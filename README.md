@@ -2,6 +2,8 @@
 
 This project is a RimWorld-like game implemented using SDL2. The game allows you to manage a colony, set storage areas, designate tree cutting zones, and create building blueprints. You can start a new game or continue from a saved game.
 
+![](image/game.png)
+
 ## Features
 
 - **Start New Game**: Click the "Start" button to begin a new game.
